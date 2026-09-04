@@ -1,0 +1,70 @@
+---
+import { projects } from "@lukebrannagan/content";
+import Container from "@lukebrannagan/design-system/components/Container.astro";
+import Link from "@lukebrannagan/design-system/components/Link.astro";
+import Stack from "@lukebrannagan/design-system/components/Stack.astro";
+import Text from "@lukebrannagan/design-system/components/Text.astro";
+import PageLayout from "../../layouts/PageLayout.astro";
+---
+
+<PageLayout title="Work" description="Selected projects and case studies.">
+	<Container>
+		<Stack gap="2xl">
+			<header>
+				<Stack gap="sm">
+					<Text as="h1" variant="display">Work</Text>
+					<Text variant="muted">Selected projects and case studies.</Text>
+				</Stack>
+			</header>
+
+			<ul class="list">
+				{
+					projects.map((project) => (
+						<li class="list__item">
+							<div class="list__row">
+								<Link href={`/work/${project.slug}`}>{project.title}</Link>
+								<span class="list__meta">
+									{project.status === "in-progress" ? "In progress" : "Shipped"}
+								</span>
+							</div>
+							<Text variant="muted">{project.summary}</Text>
+						</li>
+					))
+				}
+			</ul>
+		</Stack>
+	</Container>
+</PageLayout>
+
+<style>
+	.list {
+		list-style: none;
+		padding: 0;
+		margin: 0;
+		display: flex;
+		flex-direction: column;
+		gap: var(--space-xl);
+	}
+
+	.list__item {
+		display: flex;
+		flex-direction: column;
+		gap: var(--space-xs);
+	}
+
+	.list__row {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: baseline;
+		justify-content: space-between;
+		gap: var(--space-sm) var(--space-lg);
+	}
+
+	.list__meta {
+		font-family: var(--font-meta);
+		font-size: var(--font-size-xs);
+		color: var(--color-fg-subtle);
+		letter-spacing: var(--letter-spacing-meta);
+		text-transform: uppercase;
+	}
+</style>

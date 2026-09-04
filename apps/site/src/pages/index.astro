@@ -1,0 +1,134 @@
+---
+import {
+	featuredExperience,
+	formatTenure,
+	getFeaturedProjects,
+	site,
+} from "@lukebrannagan/content";
+import Container from "@lukebrannagan/design-system/components/Container.astro";
+import Link from "@lukebrannagan/design-system/components/Link.astro";
+import Rule from "@lukebrannagan/design-system/components/Rule.astro";
+import Stack from "@lukebrannagan/design-system/components/Stack.astro";
+import Text from "@lukebrannagan/design-system/components/Text.astro";
+import PageLayout from "../layouts/PageLayout.astro";
+
+const featured = getFeaturedProjects();
+---
+
+<PageLayout>
+	<Container>
+		<Stack gap="3xl">
+			<header class="intro">
+				<Stack gap="md">
+					<Text as="h1" variant="display">{site.name}</Text>
+					<Text variant="muted">{site.role} · {site.location}</Text>
+					<Text variant="body">{site.tagline}</Text>
+				</Stack>
+			</header>
+
+			<section aria-labelledby="work-heading">
+				<Stack gap="lg">
+					<Text as="h2" id="work-heading" variant="meta">Selected work</Text>
+					<ul class="list">
+						{
+							featured.map((project) => (
+								<li class="list__item">
+									<div class="list__row">
+										<Link href={`/work/${project.slug}`}>{project.title}</Link>
+										<span class="list__meta">{project.stack.join(" · ")}</span>
+									</div>
+									<Text variant="muted">{project.summary}</Text>
+								</li>
+							))
+						}
+					</ul>
+					<p>
+						<Link href="/work">All work</Link>
+					</p>
+				</Stack>
+			</section>
+
+			<section aria-labelledby="career-heading">
+				<Stack gap="lg">
+					<Text as="h2" id="career-heading" variant="meta">Career</Text>
+					<ul class="list">
+						{
+							featuredExperience.map((role) => (
+								<li class="list__item">
+									<div class="list__row">
+										<span>
+											{role.role} · {role.company}
+										</span>
+										<span class="list__meta">
+											{role.period} · {formatTenure(role)}
+										</span>
+									</div>
+								</li>
+							))
+						}
+					</ul>
+					<p>
+						<Link href="/cv">Full CV</Link>
+					</p>
+				</Stack>
+			</section>
+
+			<section aria-labelledby="writing-heading">
+				<Stack gap="lg">
+					<Text as="h2" id="writing-heading" variant="meta">Writing</Text>
+					<Text variant="muted">Notes and essays will live here.</Text>
+					<p>
+						<Link href="/writing">All writing</Link>
+					</p>
+				</Stack>
+			</section>
+
+			<section aria-labelledby="contact-heading">
+				<Stack gap="md">
+					<Rule />
+					<Text as="h2" id="contact-heading" variant="meta">Contact</Text>
+					<Text variant="body">{site.cta.body}</Text>
+					<p>
+						<Link href={`mailto:${site.email}`}>{site.email}</Link>
+					</p>
+				</Stack>
+			</section>
+		</Stack>
+	</Container>
+</PageLayout>
+
+<style>
+	.intro {
+		padding-top: var(--space-md);
+	}
+
+	.list {
+		list-style: none;
+		padding: 0;
+		margin: 0;
+		display: flex;
+		flex-direction: column;
+		gap: var(--space-xl);
+	}
+
+	.list__item {
+		display: flex;
+		flex-direction: column;
+		gap: var(--space-xs);
+	}
+
+	.list__row {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: baseline;
+		justify-content: space-between;
+		gap: var(--space-sm) var(--space-lg);
+	}
+
+	.list__meta {
+		font-family: var(--font-meta);
+		font-size: var(--font-size-xs);
+		color: var(--color-fg-subtle);
+		letter-spacing: var(--letter-spacing-meta);
+	}
+</style>

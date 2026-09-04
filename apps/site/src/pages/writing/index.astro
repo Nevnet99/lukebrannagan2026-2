@@ -1,0 +1,21 @@
+---
+import Container from "@lukebrannagan/design-system/components/Container.astro";
+import Stack from "@lukebrannagan/design-system/components/Stack.astro";
+import Text from "@lukebrannagan/design-system/components/Text.astro";
+import PageLayout from "../../layouts/PageLayout.astro";
+---
+
+<PageLayout title="Writing" description="Notes and essays.">
+	<Container>
+		<Stack gap="lg">
+			<header>
+				<Stack gap="sm">
+					<Text as="h1" variant="display">Writing</Text>
+					<Text variant="muted">
+						A place for notes and essays. Content collections can land here next.
+					</Text>
+				</Stack>
+			</header>
+		</Stack>
+	</Container>
+</PageLayout>

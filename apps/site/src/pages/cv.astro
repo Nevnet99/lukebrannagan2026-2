@@ -1,0 +1,112 @@
+---
+import { experience, formatTenure, site, skills } from "@lukebrannagan/content";
+import Container from "@lukebrannagan/design-system/components/Container.astro";
+import Stack from "@lukebrannagan/design-system/components/Stack.astro";
+import Text from "@lukebrannagan/design-system/components/Text.astro";
+import PageLayout from "../layouts/PageLayout.astro";
+---
+
+<PageLayout title="CV" description={site.summary}>
+	<Container>
+		<Stack gap="3xl">
+			<header>
+				<Stack gap="sm">
+					<Text as="h1" variant="display">CV</Text>
+					<Text variant="muted">{site.role} · {site.location}</Text>
+					<Text variant="body">{site.summary}</Text>
+				</Stack>
+			</header>
+
+			<section aria-labelledby="experience-heading">
+				<Stack gap="lg">
+					<Text as="h2" id="experience-heading" variant="meta">Experience</Text>
+					<ul class="list">
+						{
+							experience.map((role) => (
+								<li class="list__item">
+									<div class="list__row">
+										<span>
+											{role.role} · {role.company}
+										</span>
+										<span class="list__meta">
+											{role.period} · {formatTenure(role)}
+										</span>
+									</div>
+									<ul class="highlights">
+										{role.highlights.map((item) => (
+											<li>
+												<Text variant="muted">{item}</Text>
+											</li>
+										))}
+									</ul>
+								</li>
+							))
+						}
+					</ul>
+				</Stack>
+			</section>
+
+			<section aria-labelledby="skills-heading">
+				<Stack gap="lg">
+					<Text as="h2" id="skills-heading" variant="meta">Skills</Text>
+					<ul class="skills">
+						{
+							skills.map((group) => (
+								<li class="skills__group">
+									<Text variant="title">{group.title}</Text>
+									<Text variant="muted">{group.items.join(", ")}</Text>
+								</li>
+							))
+						}
+					</ul>
+				</Stack>
+			</section>
+		</Stack>
+	</Container>
+</PageLayout>
+
+<style>
+	.list,
+	.skills,
+	.highlights {
+		list-style: none;
+		padding: 0;
+		margin: 0;
+	}
+
+	.list,
+	.skills {
+		display: flex;
+		flex-direction: column;
+		gap: var(--space-xl);
+	}
+
+	.list__item,
+	.skills__group {
+		display: flex;
+		flex-direction: column;
+		gap: var(--space-xs);
+	}
+
+	.list__row {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: baseline;
+		justify-content: space-between;
+		gap: var(--space-sm) var(--space-lg);
+	}
+
+	.list__meta {
+		font-family: var(--font-meta);
+		font-size: var(--font-size-xs);
+		color: var(--color-fg-subtle);
+		letter-spacing: var(--letter-spacing-meta);
+	}
+
+	.highlights {
+		display: flex;
+		flex-direction: column;
+		gap: var(--space-2xs);
+		padding-inline-start: 0;
+	}
+</style>

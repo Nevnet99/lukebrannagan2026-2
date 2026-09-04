@@ -1,0 +1,95 @@
+---
+import { getProject, projects } from "@lukebrannagan/content";
+import Container from "@lukebrannagan/design-system/components/Container.astro";
+import Link from "@lukebrannagan/design-system/components/Link.astro";
+import Stack from "@lukebrannagan/design-system/components/Stack.astro";
+import Text from "@lukebrannagan/design-system/components/Text.astro";
+import PageLayout from "../../layouts/PageLayout.astro";
+
+export function getStaticPaths() {
+	return projects.map((project) => ({
+		params: { slug: project.slug },
+	}));
+}
+
+const { slug } = Astro.params;
+const project = getProject(slug!);
+
+if (!project) {
+	return Astro.redirect("/work");
+}
+---
+
+<PageLayout title={project.title} description={project.summary}>
+	<Container>
+		<article>
+			<Stack gap="2xl">
+				<header>
+					<Stack gap="sm">
+						<p>
+							<Link href="/work">← Work</Link>
+						</p>
+						<Text as="h1" variant="display">{project.title}</Text>
+						<Text variant="muted">
+							{project.role} · {project.stack.join(" · ")}
+						</Text>
+						<Text variant="body">{project.summary}</Text>
+					</Stack>
+				</header>
+
+				<section aria-labelledby="problem-heading">
+					<Stack gap="sm">
+						<Text as="h2" id="problem-heading" variant="meta">Problem</Text>
+						<Text variant="body">{project.problem}</Text>
+					</Stack>
+				</section>
+
+				<section aria-labelledby="approach-heading">
+					<Stack gap="sm">
+						<Text as="h2" id="approach-heading" variant="meta">Approach</Text>
+						<Text variant="body">{project.approach}</Text>
+					</Stack>
+				</section>
+
+				<section aria-labelledby="outcome-heading">
+					<Stack gap="sm">
+						<Text as="h2" id="outcome-heading" variant="meta">Outcome</Text>
+						<Text variant="body">{project.outcome}</Text>
+					</Stack>
+				</section>
+
+				{
+					project.links && project.links.length > 0 && (
+						<section aria-labelledby="links-heading">
+							<Stack gap="sm">
+								<Text as="h2" id="links-heading" variant="meta">
+									Links
+								</Text>
+								<ul class="links">
+									{project.links.map((link) => (
+										<li>
+											<Link href={link.href} external>
+												{link.label}
+											</Link>
+										</li>
+									))}
+								</ul>
+							</Stack>
+						</section>
+					)
+				}
+			</Stack>
+		</article>
+	</Container>
+</PageLayout>
+
+<style>
+	.links {
+		list-style: none;
+		padding: 0;
+		margin: 0;
+		display: flex;
+		flex-wrap: wrap;
+		gap: var(--space-md);
+	}
+</style>
