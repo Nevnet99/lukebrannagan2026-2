@@ -8,7 +8,7 @@ Inspired by sparse, typography-first portfolios (e.g. [kshv.me](https://www.kshv
 
 ```text
 apps/site/                 # Astro application
-libs/design-system/        # Tokens + primitives (Container, Stack, Text, Link, …)
+libs/design-system/        # Tokens + Lit custom elements (ds-*)
 libs/content/              # Site copy, projects, experience, helpers + Vitest
 ```
 
@@ -28,7 +28,7 @@ libs/content/              # Site copy, projects, experience, helpers + Vitest
 
 ## Design system
 
-Tokens live in `libs/design-system/src/tokens`. Import global styles and Astro primitives from `@lukebrannagan/design-system/...`.
+Tokens live in `libs/design-system/src/tokens`. Lit custom elements (`ds-*`) are registered from `@lukebrannagan/design-system`.
 
 ## Content
 

@@ -1,7 +1,5 @@
 ---
 import { site } from "@lukebrannagan/content";
-import Container from "@lukebrannagan/design-system/components/Container.astro";
-import Link from "@lukebrannagan/design-system/components/Link.astro";
 import BaseLayout from "./BaseLayout.astro";
 
 interface Props {
@@ -16,29 +14,33 @@ const pathname = Astro.url.pathname;
 <BaseLayout title={title} description={description}>
 	<div class="shell">
 		<header class="shell__header">
-			<Container>
+			<ds-container>
 				<div class="shell__bar">
-					<Link href="/" class="shell__brand" aria-current={pathname === "/" ? "page" : undefined}>
+					<ds-link
+						class="shell__brand"
+						href="/"
+						current={pathname === "/" ? "page" : undefined}
+					>
 						{site.name}
-					</Link>
+					</ds-link>
 					<nav id="nav" class="shell__nav" aria-label="Primary">
 						{
 							site.nav.map((item) => (
-								<Link
+								<ds-link
 									href={item.href}
-									aria-current={
+									current={
 										pathname === item.href || pathname.startsWith(`${item.href}/`)
 											? "page"
 											: undefined
 									}
 								>
 									{item.label}
-								</Link>
+								</ds-link>
 							))
 						}
 					</nav>
 				</div>
-			</Container>
+			</ds-container>
 		</header>
 
 		<main id="main" class="shell__main">
@@ -46,19 +48,19 @@ const pathname = Astro.url.pathname;
 		</main>
 
 		<footer class="shell__footer">
-			<Container>
+			<ds-container>
 				<ul class="shell__social">
 					{
 						site.social.map((item) => (
 							<li>
-								<Link href={item.href} external={item.href.startsWith("http")}>
+								<ds-link href={item.href} external={item.href.startsWith("http")}>
 									{item.label}
-								</Link>
+								</ds-link>
 							</li>
 						))
 					}
 				</ul>
-			</Container>
+			</ds-container>
 		</footer>
 	</div>
 </BaseLayout>
@@ -82,12 +84,12 @@ const pathname = Astro.url.pathname;
 		gap: var(--space-md);
 	}
 
-	.shell__brand {
+	.shell__brand::part(anchor) {
 		font-weight: var(--font-weight-medium);
 		text-decoration: none;
 	}
 
-	.shell__brand:hover {
+	.shell__brand:hover::part(anchor) {
 		text-decoration: underline;
 		text-underline-offset: 0.2em;
 	}
@@ -98,13 +100,13 @@ const pathname = Astro.url.pathname;
 		gap: var(--space-md);
 	}
 
-	.shell__nav :global(.link) {
+	.shell__nav ds-link::part(anchor) {
 		text-decoration: none;
 		color: var(--color-fg-muted);
 	}
 
-	.shell__nav :global(.link:hover),
-	.shell__nav :global(.link[aria-current="page"]) {
+	.shell__nav ds-link:hover::part(anchor),
+	.shell__nav ds-link[current="page"]::part(anchor) {
 		color: var(--color-fg);
 	}
 
@@ -127,13 +129,13 @@ const pathname = Astro.url.pathname;
 		gap: var(--space-md);
 	}
 
-	.shell__social :global(.link) {
+	.shell__social ds-link::part(anchor) {
 		font-size: var(--font-size-sm);
 		color: var(--color-fg-muted);
 		text-decoration: none;
 	}
 
-	.shell__social :global(.link:hover) {
+	.shell__social ds-link:hover::part(anchor) {
 		color: var(--color-fg);
 		text-decoration: underline;
 		text-underline-offset: 0.2em;

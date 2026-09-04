@@ -1,9 +1,5 @@
 ---
 import { getProject, projects } from "@lukebrannagan/content";
-import Container from "@lukebrannagan/design-system/components/Container.astro";
-import Link from "@lukebrannagan/design-system/components/Link.astro";
-import Stack from "@lukebrannagan/design-system/components/Stack.astro";
-import Text from "@lukebrannagan/design-system/components/Text.astro";
 import PageLayout from "../../layouts/PageLayout.astro";
 
 export function getStaticPaths() {
@@ -21,66 +17,66 @@ if (!project) {
 ---
 
 <PageLayout title={project.title} description={project.summary}>
-	<Container>
+	<ds-container>
 		<article>
-			<Stack gap="2xl">
+			<ds-stack gap="2xl">
 				<header>
-					<Stack gap="sm">
+					<ds-stack gap="sm">
 						<p>
-							<Link href="/work">← Work</Link>
+							<ds-link href="/work">← Work</ds-link>
 						</p>
-						<Text as="h1" variant="display">{project.title}</Text>
-						<Text variant="muted">
+						<ds-text as="h1" variant="display">{project.title}</ds-text>
+						<ds-text variant="muted">
 							{project.role} · {project.stack.join(" · ")}
-						</Text>
-						<Text variant="body">{project.summary}</Text>
-					</Stack>
+						</ds-text>
+						<ds-text variant="body">{project.summary}</ds-text>
+					</ds-stack>
 				</header>
 
 				<section aria-labelledby="problem-heading">
-					<Stack gap="sm">
-						<Text as="h2" id="problem-heading" variant="meta">Problem</Text>
-						<Text variant="body">{project.problem}</Text>
-					</Stack>
+					<ds-stack gap="sm">
+						<ds-text as="h2" id="problem-heading" variant="meta">Problem</ds-text>
+						<ds-text variant="body">{project.problem}</ds-text>
+					</ds-stack>
 				</section>
 
 				<section aria-labelledby="approach-heading">
-					<Stack gap="sm">
-						<Text as="h2" id="approach-heading" variant="meta">Approach</Text>
-						<Text variant="body">{project.approach}</Text>
-					</Stack>
+					<ds-stack gap="sm">
+						<ds-text as="h2" id="approach-heading" variant="meta">Approach</ds-text>
+						<ds-text variant="body">{project.approach}</ds-text>
+					</ds-stack>
 				</section>
 
 				<section aria-labelledby="outcome-heading">
-					<Stack gap="sm">
-						<Text as="h2" id="outcome-heading" variant="meta">Outcome</Text>
-						<Text variant="body">{project.outcome}</Text>
-					</Stack>
+					<ds-stack gap="sm">
+						<ds-text as="h2" id="outcome-heading" variant="meta">Outcome</ds-text>
+						<ds-text variant="body">{project.outcome}</ds-text>
+					</ds-stack>
 				</section>
 
 				{
 					project.links && project.links.length > 0 && (
 						<section aria-labelledby="links-heading">
-							<Stack gap="sm">
-								<Text as="h2" id="links-heading" variant="meta">
+							<ds-stack gap="sm">
+								<ds-text as="h2" id="links-heading" variant="meta">
 									Links
-								</Text>
+								</ds-text>
 								<ul class="links">
 									{project.links.map((link) => (
 										<li>
-											<Link href={link.href} external>
+											<ds-link href={link.href} external>
 												{link.label}
-											</Link>
+											</ds-link>
 										</li>
 									))}
 								</ul>
-							</Stack>
+							</ds-stack>
 						</section>
 					)
 				}
-			</Stack>
+			</ds-stack>
 		</article>
-	</Container>
+	</ds-container>
 </PageLayout>
 
 <style>

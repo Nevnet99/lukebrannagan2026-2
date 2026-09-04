@@ -5,52 +5,47 @@ import {
 	getFeaturedProjects,
 	site,
 } from "@lukebrannagan/content";
-import Container from "@lukebrannagan/design-system/components/Container.astro";
-import Link from "@lukebrannagan/design-system/components/Link.astro";
-import Rule from "@lukebrannagan/design-system/components/Rule.astro";
-import Stack from "@lukebrannagan/design-system/components/Stack.astro";
-import Text from "@lukebrannagan/design-system/components/Text.astro";
 import PageLayout from "../layouts/PageLayout.astro";
 
 const featured = getFeaturedProjects();
 ---
 
 <PageLayout>
-	<Container>
-		<Stack gap="3xl">
+	<ds-container>
+		<ds-stack gap="3xl">
 			<header class="intro">
-				<Stack gap="md">
-					<Text as="h1" variant="display">{site.name}</Text>
-					<Text variant="muted">{site.role} · {site.location}</Text>
-					<Text variant="body">{site.tagline}</Text>
-				</Stack>
+				<ds-stack gap="md">
+					<ds-text as="h1" variant="display">{site.name}</ds-text>
+					<ds-text variant="muted">{site.role} · {site.location}</ds-text>
+					<ds-text variant="body">{site.tagline}</ds-text>
+				</ds-stack>
 			</header>
 
 			<section aria-labelledby="work-heading">
-				<Stack gap="lg">
-					<Text as="h2" id="work-heading" variant="meta">Selected work</Text>
+				<ds-stack gap="lg">
+					<ds-text as="h2" id="work-heading" variant="meta">Selected work</ds-text>
 					<ul class="list">
 						{
 							featured.map((project) => (
 								<li class="list__item">
 									<div class="list__row">
-										<Link href={`/work/${project.slug}`}>{project.title}</Link>
+										<ds-link href={`/work/${project.slug}`}>{project.title}</ds-link>
 										<span class="list__meta">{project.stack.join(" · ")}</span>
 									</div>
-									<Text variant="muted">{project.summary}</Text>
+									<ds-text variant="muted">{project.summary}</ds-text>
 								</li>
 							))
 						}
 					</ul>
 					<p>
-						<Link href="/work">All work</Link>
+						<ds-link href="/work">All work</ds-link>
 					</p>
-				</Stack>
+				</ds-stack>
 			</section>
 
 			<section aria-labelledby="career-heading">
-				<Stack gap="lg">
-					<Text as="h2" id="career-heading" variant="meta">Career</Text>
+				<ds-stack gap="lg">
+					<ds-text as="h2" id="career-heading" variant="meta">Career</ds-text>
 					<ul class="list">
 						{
 							featuredExperience.map((role) => (
@@ -68,33 +63,33 @@ const featured = getFeaturedProjects();
 						}
 					</ul>
 					<p>
-						<Link href="/cv">Full CV</Link>
+						<ds-link href="/cv">Full CV</ds-link>
 					</p>
-				</Stack>
+				</ds-stack>
 			</section>
 
 			<section aria-labelledby="writing-heading">
-				<Stack gap="lg">
-					<Text as="h2" id="writing-heading" variant="meta">Writing</Text>
-					<Text variant="muted">Notes and essays will live here.</Text>
+				<ds-stack gap="lg">
+					<ds-text as="h2" id="writing-heading" variant="meta">Writing</ds-text>
+					<ds-text variant="muted">Notes and essays will live here.</ds-text>
 					<p>
-						<Link href="/writing">All writing</Link>
+						<ds-link href="/writing">All writing</ds-link>
 					</p>
-				</Stack>
+				</ds-stack>
 			</section>
 
 			<section aria-labelledby="contact-heading">
-				<Stack gap="md">
-					<Rule />
-					<Text as="h2" id="contact-heading" variant="meta">Contact</Text>
-					<Text variant="body">{site.cta.body}</Text>
+				<ds-stack gap="md">
+					<ds-rule></ds-rule>
+					<ds-text as="h2" id="contact-heading" variant="meta">Contact</ds-text>
+					<ds-text variant="body">{site.cta.body}</ds-text>
 					<p>
-						<Link href={`mailto:${site.email}`}>{site.email}</Link>
+						<ds-link href={`mailto:${site.email}`}>{site.email}</ds-link>
 					</p>
-				</Stack>
+				</ds-stack>
 			</section>
-		</Stack>
-	</Container>
+		</ds-stack>
+	</ds-container>
 </PageLayout>
 
 <style>

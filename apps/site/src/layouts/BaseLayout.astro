@@ -4,7 +4,6 @@ import "@fontsource/ibm-plex-sans/500.css";
 import "@fontsource/ibm-plex-mono/400.css";
 import "@lukebrannagan/design-system/styles/global.css";
 import { site } from "@lukebrannagan/content";
-import SkipLinks from "@lukebrannagan/design-system/components/SkipLinks.astro";
 
 interface Props {
 	title?: string;
@@ -26,7 +25,10 @@ const pageTitle = title === site.name ? title : `${title} · ${site.name}`;
 		<title>{pageTitle}</title>
 	</head>
 	<body>
-		<SkipLinks />
+		<ds-skip-links></ds-skip-links>
 		<slot />
+		<script>
+			import "@lukebrannagan/design-system";
+		</script>
 	</body>
 </html>

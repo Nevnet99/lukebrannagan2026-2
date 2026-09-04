@@ -1,25 +1,22 @@
 ---
 import { experience, formatTenure, site, skills } from "@lukebrannagan/content";
-import Container from "@lukebrannagan/design-system/components/Container.astro";
-import Stack from "@lukebrannagan/design-system/components/Stack.astro";
-import Text from "@lukebrannagan/design-system/components/Text.astro";
 import PageLayout from "../layouts/PageLayout.astro";
 ---
 
 <PageLayout title="CV" description={site.summary}>
-	<Container>
-		<Stack gap="3xl">
+	<ds-container>
+		<ds-stack gap="3xl">
 			<header>
-				<Stack gap="sm">
-					<Text as="h1" variant="display">CV</Text>
-					<Text variant="muted">{site.role} · {site.location}</Text>
-					<Text variant="body">{site.summary}</Text>
-				</Stack>
+				<ds-stack gap="sm">
+					<ds-text as="h1" variant="display">CV</ds-text>
+					<ds-text variant="muted">{site.role} · {site.location}</ds-text>
+					<ds-text variant="body">{site.summary}</ds-text>
+				</ds-stack>
 			</header>
 
 			<section aria-labelledby="experience-heading">
-				<Stack gap="lg">
-					<Text as="h2" id="experience-heading" variant="meta">Experience</Text>
+				<ds-stack gap="lg">
+					<ds-text as="h2" id="experience-heading" variant="meta">Experience</ds-text>
 					<ul class="list">
 						{
 							experience.map((role) => (
@@ -35,7 +32,7 @@ import PageLayout from "../layouts/PageLayout.astro";
 									<ul class="highlights">
 										{role.highlights.map((item) => (
 											<li>
-												<Text variant="muted">{item}</Text>
+												<ds-text variant="muted">{item}</ds-text>
 											</li>
 										))}
 									</ul>
@@ -43,26 +40,26 @@ import PageLayout from "../layouts/PageLayout.astro";
 							))
 						}
 					</ul>
-				</Stack>
+				</ds-stack>
 			</section>
 
 			<section aria-labelledby="skills-heading">
-				<Stack gap="lg">
-					<Text as="h2" id="skills-heading" variant="meta">Skills</Text>
+				<ds-stack gap="lg">
+					<ds-text as="h2" id="skills-heading" variant="meta">Skills</ds-text>
 					<ul class="skills">
 						{
 							skills.map((group) => (
 								<li class="skills__group">
-									<Text variant="title">{group.title}</Text>
-									<Text variant="muted">{group.items.join(", ")}</Text>
+									<ds-text variant="title">{group.title}</ds-text>
+									<ds-text variant="muted">{group.items.join(", ")}</ds-text>
 								</li>
 							))
 						}
 					</ul>
-				</Stack>
+				</ds-stack>
 			</section>
-		</Stack>
-	</Container>
+		</ds-stack>
+	</ds-container>
 </PageLayout>
 
 <style>

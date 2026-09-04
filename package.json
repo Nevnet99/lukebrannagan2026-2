@@ -27,8 +27,12 @@
 		"@geekvetica/nx-astro": "2.0.0",
 		"@nx/workspace": "23.2.0",
 		"astro": "^6.2.0",
+		"happy-dom": "^20.14.0",
 		"nx": "23.2.0",
 		"typescript": "^5.9.0",
 		"vitest": "^3.2.4"
+	},
+	"dependencies": {
+		"lit": "^3.3.3"
 	}
 }
