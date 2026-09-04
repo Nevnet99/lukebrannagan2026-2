@@ -4,6 +4,7 @@
 	"private": true,
 	"type": "module",
 	"dependencies": {
+		"@astrojs/check": "^0.9.10",
 		"astro": "^6.2.0"
 	}
 }
