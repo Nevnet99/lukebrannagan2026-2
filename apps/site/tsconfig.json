@@ -1,0 +1,16 @@
+{
+	"extends": "../../tsconfig.base.json",
+	"include": [".astro/types.d.ts", "**/*"],
+	"exclude": ["dist"],
+	"compilerOptions": {
+		"jsx": "preserve",
+		"baseUrl": ".",
+		"paths": {
+			"@/*": ["./src/*"],
+			"@lukebrannagan/design-system": ["../../libs/design-system/src/index.ts"],
+			"@lukebrannagan/design-system/*": ["../../libs/design-system/src/*"],
+			"@lukebrannagan/content": ["../../libs/content/src/index.ts"],
+			"@lukebrannagan/content/*": ["../../libs/content/src/*"]
+		}
+	}
+}
