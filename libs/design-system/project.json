@@ -1,0 +1,16 @@
+{
+	"name": "design-system",
+	"$schema": "../../node_modules/nx/schemas/project-schema.json",
+	"sourceRoot": "libs/design-system/src",
+	"projectType": "library",
+	"tags": ["type:design-system", "scope:shared"],
+	"targets": {
+		"test": {
+			"executor": "nx:run-commands",
+			"options": {
+				"command": "vitest run",
+				"cwd": "libs/design-system"
+			}
+		}
+	}
+}

@@ -1,0 +1,53 @@
+---
+interface Props {
+	as?: "p" | "h1" | "h2" | "h3" | "h4" | "span" | "li";
+	variant?: "display" | "title" | "body" | "meta" | "muted";
+	class?: string;
+	id?: string;
+}
+
+const { as: Tag = "p", variant = "body", class: className, id } = Astro.props;
+---
+
+<Tag class:list={["text", className]} data-variant={variant} id={id}>
+	<slot />
+</Tag>
+
+<style>
+	.text {
+		max-width: var(--measure);
+	}
+
+	.text[data-variant="display"] {
+		font-size: var(--font-size-2xl);
+		font-weight: var(--font-weight-medium);
+		line-height: var(--line-height-tight);
+		letter-spacing: var(--letter-spacing-tight);
+	}
+
+	.text[data-variant="title"] {
+		font-size: var(--font-size-lg);
+		font-weight: var(--font-weight-medium);
+		line-height: var(--line-height-snug);
+	}
+
+	.text[data-variant="body"] {
+		font-size: var(--font-size-md);
+		line-height: var(--line-height-normal);
+		color: var(--color-fg);
+	}
+
+	.text[data-variant="meta"] {
+		font-family: var(--font-meta);
+		font-size: var(--font-size-xs);
+		letter-spacing: var(--letter-spacing-meta);
+		color: var(--color-fg-muted);
+		text-transform: uppercase;
+	}
+
+	.text[data-variant="muted"] {
+		font-size: var(--font-size-sm);
+		line-height: var(--line-height-normal);
+		color: var(--color-fg-muted);
+	}
+</style>

@@ -1,0 +1,24 @@
+:root {
+	--space-3xs: 0.125rem;
+	--space-2xs: 0.25rem;
+	--space-xs: 0.5rem;
+	--space-sm: 0.75rem;
+	--space-md: 1rem;
+	--space-lg: 1.5rem;
+	--space-xl: 2rem;
+	--space-2xl: 3rem;
+	--space-3xl: 4.5rem;
+	--space-4xl: 6rem;
+
+	--measure: 40rem;
+	--page-max: 42rem;
+	--page-gutter: clamp(1.25rem, 4vw, 2rem);
+
+	--rule: 1px;
+	--focus-ring: 2px;
+	--focus-offset: 3px;
+	--hit-min: 2.75rem;
+
+	--duration-fast: 120ms;
+	--ease-out: cubic-bezier(0.2, 0, 0, 1);
+}

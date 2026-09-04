@@ -1,0 +1,10 @@
+{
+	"extends": "../../tsconfig.base.json",
+	"include": ["src/**/*.ts"],
+	"exclude": ["src/**/*.test.ts"],
+	"compilerOptions": {
+		"outDir": "../../dist/libs/design-system",
+		"rootDir": "src",
+		"types": ["vite/client"]
+	}
+}

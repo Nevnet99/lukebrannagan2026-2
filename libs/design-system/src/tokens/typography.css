@@ -1,0 +1,21 @@
+:root {
+	--font-body: "IBM Plex Sans", "Helvetica Neue", Arial, sans-serif;
+	--font-meta: "IBM Plex Mono", ui-monospace, "Cascadia Code", monospace;
+
+	--font-size-xs: 0.75rem;
+	--font-size-sm: 0.875rem;
+	--font-size-md: 1rem;
+	--font-size-lg: 1.125rem;
+	--font-size-xl: 1.5rem;
+	--font-size-2xl: clamp(1.75rem, 1.4rem + 1.2vw, 2.25rem);
+
+	--line-height-tight: 1.2;
+	--line-height-snug: 1.4;
+	--line-height-normal: 1.6;
+
+	--letter-spacing-tight: -0.02em;
+	--letter-spacing-meta: 0.04em;
+
+	--font-weight-regular: 400;
+	--font-weight-medium: 500;
+}

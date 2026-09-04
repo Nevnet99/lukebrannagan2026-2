@@ -1,0 +1,23 @@
+/**
+ * Ultra-minimal palette — paper, ink, quiet mute.
+ * Primitives stay in tokens; components use semantics only.
+ */
+:root {
+	--paper-50: #fafafa;
+	--paper-100: #f4f4f5;
+	--paper-200: #e4e4e7;
+
+	--ink-950: #0a0a0a;
+	--ink-800: #27272a;
+	--ink-600: #52525b;
+	--ink-400: #a1a1aa;
+
+	--color-bg: var(--paper-50);
+	--color-bg-subtle: var(--paper-100);
+	--color-fg: var(--ink-950);
+	--color-fg-muted: var(--ink-600);
+	--color-fg-subtle: var(--ink-400);
+	--color-border: var(--paper-200);
+	--color-focus: var(--ink-800);
+	--color-selection-bg: color-mix(in srgb, var(--ink-950) 12%, transparent);
+}
