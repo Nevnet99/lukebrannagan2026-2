@@ -35,10 +35,19 @@
 <style>
 	.cookie-banner {
 		position: fixed;
-		inset-inline: 0;
+		/* Pin to the visual viewport — inset-inline:0 alone tracks an
+		   expanded layout viewport when other content overflows horizontally. */
+		inset-inline-start: 0;
+		inset-inline-end: auto;
 		inset-block-end: 0;
 		z-index: 40;
+		box-sizing: border-box;
+		inline-size: 100%;
+		max-inline-size: 100vw;
 		padding: var(--space-md);
+		padding-block-end: max(var(--space-md), env(safe-area-inset-bottom, 0px));
+		padding-inline: max(var(--space-md), env(safe-area-inset-left, 0px))
+			max(var(--space-md), env(safe-area-inset-right, 0px));
 		pointer-events: none;
 	}
 
@@ -48,7 +57,8 @@
 
 	.cookie-banner__inner {
 		pointer-events: auto;
-		max-inline-size: 40rem;
+		box-sizing: border-box;
+		max-inline-size: min(40rem, 100%);
 		margin-inline: auto;
 		display: flex;
 		flex-wrap: wrap;
@@ -59,6 +69,20 @@
 		background: var(--color-bg);
 		border: var(--rule) solid var(--color-border);
 		box-shadow: var(--shadow-overlay);
+	}
+
+	@media (max-width: 40rem) {
+		.cookie-banner {
+			padding: var(--space-sm);
+			padding-block-end: max(var(--space-sm), env(safe-area-inset-bottom, 0px));
+			padding-inline: max(var(--space-sm), env(safe-area-inset-left, 0px))
+				max(var(--space-sm), env(safe-area-inset-right, 0px));
+		}
+
+		.cookie-banner__inner {
+			gap: var(--space-sm);
+			padding: var(--space-sm) var(--space-md);
+		}
 	}
 
 	.cookie-banner__copy {
