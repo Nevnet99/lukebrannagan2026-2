@@ -46,10 +46,7 @@ export const seriesList: Series[] = [
 		],
 		collection: "writing",
 		featured: true,
-		memberSlugs: [
-			"the-coming-crash-of-vibe-coded-software",
-			"ai-moving-from-manual-to-automatic",
-		],
+		memberSlugs: ["the-coming-crash-of-vibe-coded-software", "ai-moving-from-manual-to-automatic"],
 	},
 	{
 		slug: "book-reviews",
@@ -151,9 +148,7 @@ export function listWorkIndexEntries(): WorkIndexEntry[] {
 
 /** Home Writing: featured writing series (e.g. AI and craft). */
 export function listFeaturedWritingSeries(): Series[] {
-	return seriesList.filter(
-		(series) => series.collection === "writing" && series.featured,
-	);
+	return seriesList.filter((series) => series.collection === "writing" && series.featured);
 }
 
 /**

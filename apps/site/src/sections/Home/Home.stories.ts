@@ -25,7 +25,6 @@ const sampleWritingMembersBySeries: Record<string, { title: string }[]> = {
 	],
 };
 
-
 export const Intro: Story = {
 	render: () => html`
 		<ds-container>

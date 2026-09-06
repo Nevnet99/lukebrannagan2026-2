@@ -16,10 +16,7 @@ const featuredWriting = listFeaturedWritingSeries()
 	.map((series) => {
 		const members = series.memberSlugs
 			.map((id) => writingById.get(id))
-			.filter(
-				(post) =>
-					post != null && !post.data.archived && isWritingPubliclyLinked(post.data),
-			)
+			.filter((post) => post != null && !post.data.archived && isWritingPubliclyLinked(post.data))
 			.map((post) => ({ title: post!.data.title }));
 		return { series, members };
 	})
