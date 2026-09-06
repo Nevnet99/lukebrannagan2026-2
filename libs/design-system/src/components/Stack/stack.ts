@@ -1,5 +1,5 @@
 import { css, html, LitElement } from "lit";
-import type { SpacingToken } from "../types";
+import type { SpacingToken } from "../../types";
 
 export class DsStack extends LitElement {
 	static override styles = css`

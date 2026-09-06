@@ -1,5 +1,5 @@
 import { css, html, LitElement, nothing } from "lit";
-import { type IconName, iconGlyph, isIconName } from "../icons";
+import { type IconName, iconGlyph, isIconName } from "../../icons";
 
 /**
  * Material Symbols glyph. Decorative by default; pass `label` for a named icon.

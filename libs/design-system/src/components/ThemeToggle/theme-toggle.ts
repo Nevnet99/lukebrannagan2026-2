@@ -1,6 +1,6 @@
 import { css, html, LitElement } from "lit";
-import { applyTheme, resolveTheme, setTheme, type Theme } from "../theme";
-import type { DsSwitch } from "./switch";
+import { applyTheme, resolveTheme, setTheme, type Theme } from "../../theme";
+import type { DsSwitch } from "../Switch";
 
 /**
  * Theme preference control — icon switch with an accessible “Theme” name.

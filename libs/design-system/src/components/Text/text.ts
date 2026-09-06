@@ -1,5 +1,5 @@
 import { css, html, LitElement } from "lit";
-import type { TextTag, TextVariant } from "../types";
+import type { TextTag, TextVariant } from "../../types";
 
 export class DsText extends LitElement {
 	static override styles = css`

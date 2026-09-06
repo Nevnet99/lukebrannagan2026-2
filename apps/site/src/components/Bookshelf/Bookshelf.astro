@@ -1,6 +1,6 @@
 ---
 import type { CollectionEntry } from "astro:content";
-import StarRating from "./StarRating.astro";
+import StarRating from "../StarRating/StarRating.astro";
 
 interface Props {
 	books: CollectionEntry<"writing">[];
@@ -124,7 +124,7 @@ const books3d = allItems.map((item) => ({
 </section>
 
 <script>
-	import { mountBookshelf3D } from "../scripts/bookshelf-3d";
+	import { mountBookshelf3D } from "../../scripts/bookshelf-3d";
 
 	if (typeof document !== "undefined") {
 		if (document.readyState === "loading") {

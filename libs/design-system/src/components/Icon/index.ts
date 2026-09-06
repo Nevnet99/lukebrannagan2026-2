@@ -1,0 +1,1 @@
+export { DsIcon } from "./icon";

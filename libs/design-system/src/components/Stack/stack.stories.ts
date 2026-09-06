@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/web-components-vite";
 import { html } from "lit";
-import type { SpacingToken } from "../types";
+import type { SpacingToken } from "../../types";
 
 const meta = {
 	title: "Components/Stack",

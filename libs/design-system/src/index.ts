@@ -1,14 +1,14 @@
-import { DsBreadcrumb } from "./components/breadcrumb";
-import { DsContainer } from "./components/container";
-import { DsIcon } from "./components/icon";
-import { DsLink } from "./components/link";
-import { DsPopover } from "./components/popover";
-import { DsRule } from "./components/rule";
-import { DsSkipLinks } from "./components/skip-links";
-import { DsStack } from "./components/stack";
-import { DsSwitch } from "./components/switch";
-import { DsText } from "./components/text";
-import { DsThemeToggle } from "./components/theme-toggle";
+import { DsBreadcrumb } from "./components/BreadCrumb";
+import { DsContainer } from "./components/Container";
+import { DsIcon } from "./components/Icon";
+import { DsLink } from "./components/Link";
+import { DsPopover } from "./components/Popover";
+import { DsRule } from "./components/Rule";
+import { DsSkipLinks } from "./components/SkipLinks";
+import { DsStack } from "./components/Stack";
+import { DsSwitch } from "./components/Switch";
+import { DsText } from "./components/Text";
+import { DsThemeToggle } from "./components/ThemeToggle";
 
 const registry = [
 	["ds-container", DsContainer],
@@ -35,17 +35,17 @@ export function defineDesignSystem() {
 
 defineDesignSystem();
 
-export { type BreadcrumbItem, DsBreadcrumb } from "./components/breadcrumb";
-export { DsContainer } from "./components/container";
-export { DsIcon } from "./components/icon";
-export { DsLink } from "./components/link";
-export { DsPopover, type PopoverPlacement } from "./components/popover";
-export { DsRule } from "./components/rule";
-export { DsSkipLinks } from "./components/skip-links";
-export { DsStack } from "./components/stack";
-export { DsSwitch } from "./components/switch";
-export { DsText } from "./components/text";
-export { DsThemeToggle } from "./components/theme-toggle";
+export { type BreadcrumbItem, DsBreadcrumb } from "./components/BreadCrumb";
+export { DsContainer } from "./components/Container";
+export { DsIcon } from "./components/Icon";
+export { DsLink } from "./components/Link";
+export { DsPopover, type PopoverPlacement } from "./components/Popover";
+export { DsRule } from "./components/Rule";
+export { DsSkipLinks } from "./components/SkipLinks";
+export { DsStack } from "./components/Stack";
+export { DsSwitch } from "./components/Switch";
+export { DsText } from "./components/Text";
+export { DsThemeToggle } from "./components/ThemeToggle";
 export { type IconName, iconNames, isIconName } from "./icons";
 export {
 	applyTheme,

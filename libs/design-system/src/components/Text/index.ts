@@ -1,0 +1,1 @@
+export { DsText } from "./text";

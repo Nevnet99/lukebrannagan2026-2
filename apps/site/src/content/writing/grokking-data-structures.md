@@ -9,7 +9,7 @@ rating: 3
 reviewStatus: to-be-reviewed
 listed: false
 isbn: "9781633436985"
+cover: /covers/books/grokking-data-structures.jpg
 ---
 
 To be reviewed.
-cover: /covers/books/grokking-data-structures.jpg

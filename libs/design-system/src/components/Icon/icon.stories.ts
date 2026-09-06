@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/web-components-vite";
 import { html } from "lit";
-import { type IconName, iconNames } from "../icons";
+import { type IconName, iconNames } from "../../icons";
 
 const meta = {
 	title: "Components/Icon",

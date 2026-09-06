@@ -10,7 +10,7 @@ reviewStatus: to-be-reviewed
 listed: false
 isbn: "9798988330912"
 amazonAsin: "B0BRY9ZYXD"
+cover: /covers/books/saas-playbook.jpg
 ---
 
 To be reviewed.
-cover: /covers/books/saas-playbook.jpg

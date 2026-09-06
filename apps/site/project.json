@@ -10,6 +10,19 @@
 			"options": {},
 			"cache": false
 		},
+		"fetch-book-covers": {
+			"executor": "nx:run-commands",
+			"options": {
+				"command": "bun run apps/site/scripts/fetch-book-covers.mjs"
+			},
+			"inputs": [
+				"{projectRoot}/scripts/fetch-book-covers.mjs",
+				"{projectRoot}/src/content/writing/**/*",
+				"{projectRoot}/public/covers/books/**/*"
+			],
+			"outputs": ["{projectRoot}/public/covers/books"],
+			"cache": true
+		},
 		"build": {
 			"executor": "@geekvetica/nx-astro:build",
 			"options": {},
@@ -23,7 +36,7 @@
 			],
 			"outputs": ["{workspaceRoot}/dist/{projectRoot}"],
 			"cache": true,
-			"dependsOn": ["^build"]
+			"dependsOn": ["fetch-book-covers", "^build"]
 		},
 		"preview": {
 			"executor": "@geekvetica/nx-astro:preview",

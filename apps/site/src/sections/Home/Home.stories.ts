@@ -1,8 +1,8 @@
 import { getWorkSeriesMembers, listFeaturedWorkEntries, site } from "@lukebrannagan/content";
 import type { Meta, StoryObj } from "@storybook/web-components-vite";
 import { html } from "lit";
-import { sectionHeadStyles } from "./storybook/section-head.css";
-import { renderSeriesStack } from "./storybook/series-stack";
+import { sectionHeadStyles } from "../../components/SectionHeading/section-head.css";
+import { renderSeriesStack } from "../../components/SeriesStack/series-stack";
 
 const meta = {
 	title: "Sections/Home",

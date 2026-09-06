@@ -6,13 +6,23 @@ Ultra-minimal tokens and Lit custom elements for the site.
 
 ```text
 src/
-├── tokens/       # colors (light/dark), typography, spacing
-├── styles/       # fonts, reset, global
-├── components/   # Lit elements (ds-*)
-├── theme.ts      # light/dark helpers + boot script
+├── tokens/        # colors, typography, spacing, motion, shadow
+├── styles/        # fonts, reset, global, motion
+├── components/    # one folder per Lit element
+│   ├── BreadCrumb/
+│   │   ├── breadcrumb.ts
+│   │   ├── breadcrumb.stories.ts
+│   │   ├── breadcrumb.test.ts
+│   │   └── index.ts
+│   ├── Container/
+│   └── …
+├── foundations/   # token/docs stories (color, type, elevation, motion)
+├── theme.ts
 ├── types.ts
-└── index.ts      # registers all custom elements
+└── index.ts       # registers all custom elements
 ```
+
+Each component folder owns its source, Storybook stories, and unit tests. Do not add flat `components/*.ts` siblings for new elements — create a folder.
 
 ## Theme
 

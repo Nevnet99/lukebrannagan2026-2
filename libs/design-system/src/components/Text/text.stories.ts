@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/web-components-vite";
 import { html } from "lit";
-import type { TextTag, TextVariant } from "./types";
+import type { TextTag, TextVariant } from "../../types";
 
 const meta = {
 	title: "Components/Text",

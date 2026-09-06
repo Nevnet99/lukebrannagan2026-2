@@ -1,16 +1,21 @@
 #!/usr/bin/env bun
 /**
- * Resolve ISBNs (Open Library), write frontmatter, download covers locally.
+ * Fill missing book-review covers once into `public/covers/books/`.
+ * Skips files that already exist (covers are committed / cached locally).
+ * Pass `--force` to re-download everything.
  *
- * Usage: bun run apps/site/scripts/fetch-book-covers.mjs
+ * Usage:
+ *   bun run fetch-book-covers
+ *   bun run fetch-book-covers -- --force
  */
-import { mkdir, readdir, readFile, writeFile } from "node:fs/promises";
+import { access, mkdir, readdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../..");
 const writingDir = path.join(root, "apps/site/src/content/writing");
 const coverDir = path.join(root, "apps/site/public/covers/books");
+const force = process.argv.includes("--force");
 
 /** Known ISBN-13 overrides when Open Library search is ambiguous. */
 const isbnBySlug = {
@@ -84,6 +89,7 @@ function parseFile(raw) {
 				.filter(Boolean);
 		} else {
 			value = value.replace(/^["']|["']$/g, "");
+			if (/^-?\d+(\.\d+)?$/.test(value)) value = Number(value);
 		}
 		fm[key] = value;
 	}
@@ -106,15 +112,14 @@ function serializeFile(fm, body, order) {
 			return `${key}: [${value.join(", ")}]`;
 		}
 		if (typeof value === "string") {
-			const forceQuote = key === "isbn" || key === "amazonAsin" || key === "cover";
+			const forceQuote = key === "isbn" || key === "amazonAsin";
 			const needsQuote =
 				forceQuote ||
 				value.includes(":") ||
 				value.includes("#") ||
 				value.includes('"') ||
 				value.includes("'") ||
-				value.startsWith(" ") ||
-				/^\d+$/.test(value);
+				value.startsWith(" ");
 			return needsQuote ? `${key}: ${JSON.stringify(value)}` : `${key}: ${value}`;
 		}
 		return `${key}: ${String(value)}`;
@@ -125,6 +130,16 @@ function serializeFile(fm, body, order) {
 /** @param {number} ms */
 async function sleep(ms) {
 	await new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+/** @param {string} filePath */
+async function fileExists(filePath) {
+	try {
+		await access(filePath);
+		return true;
+	} catch {
+		return false;
+	}
 }
 
 /**
@@ -181,7 +196,8 @@ async function main() {
 	await mkdir(coverDir, { recursive: true });
 	const files = (await readdir(writingDir)).filter((name) => name.endsWith(".md"));
 	let updated = 0;
-	let covers = 0;
+	let downloaded = 0;
+	let skipped = 0;
 
 	for (const file of files) {
 		const slug = file.replace(/\.md$/, "");
@@ -205,34 +221,56 @@ async function main() {
 
 		const coverRel = `/covers/books/${slug}.jpg`;
 		const coverAbs = path.join(coverDir, `${slug}.jpg`);
-		let gotCover = false;
-		if (isbn) {
-			gotCover = await downloadCover(isbn, coverAbs);
-			await sleep(200);
-		}
-		if (!gotCover && coverUrlBySlug[slug]) {
-			gotCover = await downloadCoverUrl(coverUrlBySlug[slug], coverAbs);
-			await sleep(200);
-		}
-		if (gotCover) {
+		const alreadyHave = !force && (await fileExists(coverAbs));
+
+		if (alreadyHave) {
+			skipped += 1;
+			const coverOk = String(fm.cover ?? "") === coverRel;
+			const isbnOk = !isbn || String(fm.isbn ?? "") === isbn;
+			const asinOk = !asin || String(fm.amazonAsin ?? "") === asin;
+			if (coverOk && isbnOk && asinOk) {
+				console.log(`skip   ${slug}`);
+				continue;
+			}
+			// Cover file exists but frontmatter is incomplete — patch fields only.
 			fm.cover = coverRel;
-			covers += 1;
-			console.log(`cover  ${slug}`);
-		} else if (isbn) {
-			console.warn(`no cover for ${slug} (isbn ${isbn})`);
+			console.log(`meta   ${slug}`);
 		} else {
-			console.warn(`no isbn for ${slug}`);
+			let gotCover = false;
+			if (isbn) {
+				gotCover = await downloadCover(isbn, coverAbs);
+				await sleep(200);
+			}
+			if (!gotCover && coverUrlBySlug[slug]) {
+				gotCover = await downloadCoverUrl(coverUrlBySlug[slug], coverAbs);
+				await sleep(200);
+			}
+			if (gotCover) {
+				fm.cover = coverRel;
+				downloaded += 1;
+				console.log(`cover  ${slug}`);
+			} else if (isbn) {
+				console.warn(`no cover for ${slug} (isbn ${isbn})`);
+			} else {
+				console.warn(`no isbn for ${slug}`);
+			}
 		}
 
 		if (!order.includes("isbn") && fm.isbn) order.push("isbn");
 		if (!order.includes("amazonAsin") && fm.amazonAsin) order.push("amazonAsin");
 		if (!order.includes("cover") && fm.cover) order.push("cover");
 
-		await writeFile(full, serializeFile(fm, body, order));
-		updated += 1;
+		const nextBody = body.replace(/^\n?cover: \/covers\/books\/.+\n?/m, "");
+		const next = serializeFile(fm, nextBody.startsWith("\n") ? nextBody : `\n${nextBody}`, order);
+		if (next !== raw) {
+			await writeFile(full, next);
+			updated += 1;
+		}
 	}
 
-	console.log(`\nUpdated ${updated} book posts, downloaded ${covers} covers → ${coverDir}`);
+	console.log(
+		`\nFrontmatter writes: ${updated} · downloaded ${downloaded} · skipped ${skipped} (already on disk)${force ? " · forced" : ""} → ${coverDir}`,
+	);
 }
 
 main().catch((error) => {

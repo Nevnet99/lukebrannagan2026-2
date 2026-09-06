@@ -1,36 +1,16 @@
-import { getSeries, getWorkSeriesMembers } from "@lukebrannagan/content";
 import type { Meta, StoryObj } from "@storybook/web-components-vite";
 import { html } from "lit";
-import { renderSeriesStack } from "./storybook/series-stack";
-import { renderStarRating, starRatingStyles } from "./storybook/star-rating";
+import { renderStarRating, starRatingStyles } from "./star-rating";
 
 const meta = {
-	title: "Components",
+	title: "Components/StarRating",
 	tags: ["autodocs"],
 } satisfies Meta;
 
 export default meta;
 type Story = StoryObj;
 
-export const SeriesStack: Story = {
-	name: "Series stack",
-	render: () => {
-		const series = getSeries("kroo", "work");
-		if (!series) {
-			return html`<p>Missing Kroo series fixture</p>`;
-		}
-		const members = getWorkSeriesMembers(series);
-		return html`
-			<ds-container>
-				<ul class="surface-list" style="max-inline-size: 42rem">
-					${renderSeriesStack(series, members)}
-				</ul>
-			</ds-container>
-		`;
-	},
-};
-
-export const StarRating: Story = {
+export const Default: Story = {
 	name: "Star rating",
 	render: () => html`
 		<style>

@@ -1,5 +1,5 @@
 import { css, html, LitElement, nothing } from "lit";
-import { type IconName, isIconName } from "../icons";
+import { type IconName, isIconName } from "../../icons";
 
 let switchId = 0;
 
