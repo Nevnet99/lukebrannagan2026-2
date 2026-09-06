@@ -33,7 +33,7 @@ const {
 	article,
 } = Astro.props;
 
-const pageTitle = title === site.name ? title : `${title} · ${site.name}`;
+const pageTitle = title === site.name ? title : `${site.name} | ${title}`;
 const canonicalURL = new URL(Astro.url.pathname, Astro.site ?? site.url);
 const imageURL = image
 	? image.startsWith("http")
