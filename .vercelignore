@@ -1,0 +1,10 @@
+# Local build artifacts — must not upload (Nx treats nested project.json as projects)
+dist
+tmp
+out-tsc
+storybook-static
+.nx
+coverage
+.env
+.env.*
+!.env.example
