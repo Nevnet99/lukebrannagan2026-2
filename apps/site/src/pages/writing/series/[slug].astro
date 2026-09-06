@@ -35,12 +35,12 @@ if (!series) {
 
 const allWriting = await getCollection("writing");
 const byId = new Map(allWriting.map((post) => [post.id, post]));
-const members = series.memberSlugs
-	.map((id) => byId.get(id))
-	.filter(
-		(post): post is (typeof allWriting)[number] =>
-			post != null && isWritingPubliclyLinked(post.data),
-	);
+const totalInSeries = series.memberSlugs.length;
+const members = series.memberSlugs.flatMap((id, index) => {
+	const post = byId.get(id);
+	if (post == null || !isWritingPubliclyLinked(post.data)) return [];
+	return [{ post, part: index + 1, total: totalInSeries }];
+});
 
 if (members.length === 0) {
 	return Astro.redirect("/writing");
@@ -74,7 +74,7 @@ const isBookshelf = series.layout === "bookshelf";
 
 			{
 				isBookshelf ? (
-					<Bookshelf books={members} />
+					<Bookshelf books={members.map(({ post }) => post)} />
 				) : (
 					<section aria-labelledby="series-members-heading">
 						<ds-stack gap="md">
@@ -82,7 +82,7 @@ const isBookshelf = series.layout === "bookshelf";
 								In this series
 							</ds-text>
 							<ul class="surface-list">
-								{members.map((post) => (
+								{members.map(({ post, part, total }) => (
 									<li>
 										<article class="surface surface--interactive">
 											<div class="surface__row">
@@ -92,6 +92,9 @@ const isBookshelf = series.layout === "bookshelf";
 													</span>
 													{post.data.title}
 												</ds-link>
+												<span class="surface__meta">
+													Part {part} of {total}
+												</span>
 											</div>
 											<ds-text variant="muted">{post.data.description}</ds-text>
 										</article>

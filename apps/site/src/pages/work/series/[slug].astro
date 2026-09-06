@@ -54,7 +54,7 @@ const overview = series.body?.length ? series.body : [series.summary];
 					</ds-text>
 					<ul class="surface-list">
 						{
-							members.map((project) => (
+							members.map((project, index) => (
 								<li>
 									<article class="surface surface--interactive">
 										<div class="surface__row">
@@ -64,7 +64,9 @@ const overview = series.body?.length ? series.body : [series.summary];
 												</span>
 												{project.title}
 											</ds-link>
-											<span class="surface__meta surface__meta--status">
+											<span class="surface__meta">
+												Part {index + 1} of {members.length}
+												{" · "}
 												{project.status === "in-progress"
 													? "In progress"
 													: "Shipped"}

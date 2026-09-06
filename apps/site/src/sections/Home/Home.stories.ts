@@ -1,4 +1,9 @@
-import { getWorkSeriesMembers, listFeaturedWorkEntries, site } from "@lukebrannagan/content";
+import {
+	getWorkSeriesMembers,
+	listFeaturedWorkEntries,
+	listFeaturedWritingSeries,
+	site,
+} from "@lukebrannagan/content";
 import type { Meta, StoryObj } from "@storybook/web-components-vite";
 import { html } from "lit";
 import { sectionHeadStyles } from "../../components/SectionHeading/section-head.css";
@@ -12,27 +17,13 @@ const meta = {
 export default meta;
 type Story = StoryObj;
 
-/** Stand-in for Astro content collection posts (Storybook has no `getCollection`). */
-const sampleWriting = [
-	{
-		id: "if-youre-not-using-storybook",
-		title: "If you’re not using Storybook",
-		description: "Why component isolation still earns its keep on a personal site.",
-		meta: "14 Apr 2025 · 4 min read",
-	},
-	{
-		id: "accessibility-getting-started-quick-wins",
-		title: "Accessibility: getting started with quick wins",
-		description: "Small changes that move the needle without a redesign.",
-		meta: "2 Mar 2025 · 5 min read",
-	},
-	{
-		id: "learning-in-2025",
-		title: "Learning in 2025",
-		description: "How I’m picking what to study next.",
-		meta: "18 Jan 2025 · 6 min read",
-	},
-] as const;
+/** Stand-in titles for series peeks (Storybook has no `getCollection`). */
+const sampleWritingMembersBySeries: Record<string, { title: string }[]> = {
+	"ai-and-craft": [
+		{ title: "The Coming Crash of Vibe-Coded Software" },
+		{ title: "AI, Moving from Manual to Automatic" },
+	],
+};
 
 export const Intro: Story = {
 	render: () => html`
@@ -93,39 +84,30 @@ export const SelectedWork: Story = {
 };
 
 export const Writing: Story = {
-	render: () => html`
-		<style>
-			${sectionHeadStyles}
-		</style>
-		<ds-container>
-			<ds-stack gap="md">
-				<div class="section-head">
-					<ds-text as="h2" variant="meta">Writing</ds-text>
-					<ds-link class="section-head__link" href="/writing">All writing</ds-link>
-				</div>
-				<ul class="surface-list">
-					${sampleWriting.map(
-						(post) => html`
-							<li>
-								<article class="surface surface--interactive">
-									<div class="surface__row">
-										<ds-link stretch href=${`/writing/${post.id}`}>
-											<span class="surface__icon">
-												<ds-icon name="article"></ds-icon>
-											</span>
-											${post.title}
-										</ds-link>
-										<span class="surface__meta">${post.meta}</span>
-									</div>
-									<ds-text variant="muted">${post.description}</ds-text>
-								</article>
-							</li>
-						`,
-					)}
-				</ul>
-			</ds-stack>
-		</ds-container>
-	`,
+	render: () => {
+		const featuredWriting = listFeaturedWritingSeries();
+		return html`
+			<style>
+				${sectionHeadStyles}
+			</style>
+			<ds-container>
+				<ds-stack gap="md">
+					<div class="section-head">
+						<ds-text as="h2" variant="meta">Writing</ds-text>
+						<ds-link class="section-head__link" href="/writing">All writing</ds-link>
+					</div>
+					<ul class="surface-list">
+						${featuredWriting.map((series) => {
+							const members =
+								sampleWritingMembersBySeries[series.slug] ??
+								series.memberSlugs.map((slug) => ({ title: slug }));
+							return renderSeriesStack(series, members);
+						})}
+					</ul>
+				</ds-stack>
+			</ds-container>
+		`;
+	},
 };
 
 export const WritingEmpty: Story = {

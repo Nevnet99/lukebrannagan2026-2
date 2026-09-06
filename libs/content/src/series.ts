@@ -37,6 +37,18 @@ export const seriesList: Series[] = [
 		memberSlugs: ["kroo-design-system", "kroo-cms", "kroo-rebrand"],
 	},
 	{
+		slug: "ai-and-craft",
+		title: "AI and craft",
+		summary:
+			"Where I started on vibe-coded software, and how my opinions on AI in day-to-day work are changing.",
+		body: [
+			"Two posts for now. The first was a prediction about quality collapsing under vibe coding. The second is the follow-up: what shifted when I moved more of my own work from manual to automatic.",
+		],
+		collection: "writing",
+		featured: true,
+		memberSlugs: ["the-coming-crash-of-vibe-coded-software", "ai-moving-from-manual-to-automatic"],
+	},
+	{
 		slug: "book-reviews",
 		title: "Book reviews",
 		summary: "Books on craft, systems, and adjacent reading — reviews as they land.",
@@ -132,6 +144,11 @@ export function listWorkIndexEntries(): WorkIndexEntry[] {
 	}
 
 	return entries;
+}
+
+/** Home Writing: featured writing series (e.g. AI and craft). */
+export function listFeaturedWritingSeries(): Series[] {
+	return seriesList.filter((series) => series.collection === "writing" && series.featured);
 }
 
 /**
