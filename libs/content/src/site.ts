@@ -33,13 +33,9 @@ export const site = {
 	],
 	footerLegal: [
 		{ label: "RSS", href: "/rss.xml" },
-		{ label: "Colophon", href: "/colophon" },
 		{ label: "Accessibility", href: "/accessibility" },
 		{ label: "Cookie policy", href: "/cookies" },
 	],
-	colophon: {
-		lede: "How this site is put together: stack, content model, and the feeds machines read.",
-	},
 	accessibility: {
 		lede: "What I aim for on this site, what still needs work, and how to tell me when something breaks.",
 	},
