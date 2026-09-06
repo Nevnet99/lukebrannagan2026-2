@@ -32,6 +32,7 @@ export {
 	getWorkSeriesMembers,
 	getWorkSeriesSiblings,
 	listFeaturedWorkEntries,
+	listFeaturedWritingSeries,
 	listWorkIndexEntries,
 	type Series,
 	type SeriesCollection,

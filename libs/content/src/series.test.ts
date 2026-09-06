@@ -4,6 +4,7 @@ import {
 	getWorkSeriesMembers,
 	getWorkSeriesSiblings,
 	listFeaturedWorkEntries,
+	listFeaturedWritingSeries,
 	listWorkIndexEntries,
 	seriesHref,
 	seriesMemberCountLabel,
@@ -53,5 +54,9 @@ describe("series", () => {
 		expect(seriesMemberCountLabel(1, "writing")).toBe("1 post");
 		expect(seriesMemberCountLabel(6, "writing", "bookshelf")).toBe("6 books");
 		expect(seriesMemberCountLabel(20, "writing", "bookshelf")).toBe("20 books");
+	});
+
+	it("features the AI and craft writing series on the home writing list", () => {
+		expect(listFeaturedWritingSeries().map((series) => series.slug)).toEqual(["ai-and-craft"]);
 	});
 });

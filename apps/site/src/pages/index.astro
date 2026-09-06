@@ -4,18 +4,26 @@ import {
 	getWorkSeriesMembers,
 	isWritingPubliclyLinked,
 	listFeaturedWorkEntries,
-	readingTimeLabel,
+	listFeaturedWritingSeries,
 	site,
 } from "@lukebrannagan/content";
 import SeriesStack from "../components/SeriesStack/SeriesStack.astro";
 import PageLayout from "../layouts/PageLayout.astro";
-import { formatPostDate } from "../lib/dates";
 
 const featuredWork = listFeaturedWorkEntries();
-const recentWriting = (await getCollection("writing"))
-	.filter((post) => !post.data.archived && isWritingPubliclyLinked(post.data))
-	.sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf())
-	.slice(0, 3);
+const writingById = new Map((await getCollection("writing")).map((post) => [post.id, post]));
+const featuredWriting = listFeaturedWritingSeries()
+	.map((series) => {
+		const members = series.memberSlugs
+			.map((id) => writingById.get(id))
+			.filter(
+				(post) =>
+					post != null && !post.data.archived && isWritingPubliclyLinked(post.data),
+			)
+			.map((post) => ({ title: post!.data.title }));
+		return { series, members };
+	})
+	.filter((entry) => entry.members.length > 0);
 ---
 
 <PageLayout>
@@ -72,7 +80,7 @@ const recentWriting = (await getCollection("writing"))
 					<div class="section-head">
 						<ds-text as="h2" id="writing-heading" variant="meta">Writing</ds-text>
 						{
-							recentWriting.length > 0 && (
+							featuredWriting.length > 0 && (
 								<ds-link class="section-head__link" href="/writing">
 									All writing
 								</ds-link>
@@ -80,7 +88,7 @@ const recentWriting = (await getCollection("writing"))
 						}
 					</div>
 					{
-						recentWriting.length === 0 ? (
+						featuredWriting.length === 0 ? (
 							<ds-stack gap="md">
 								<ds-text variant="muted">{site.writing.empty}</ds-text>
 								<p>
@@ -91,24 +99,8 @@ const recentWriting = (await getCollection("writing"))
 							</ds-stack>
 						) : (
 							<ul class="surface-list">
-								{recentWriting.map((post) => (
-									<li>
-										<article class="surface surface--interactive">
-											<div class="surface__row">
-												<ds-link stretch href={`/writing/${post.id}`}>
-													<span class="surface__icon">
-														<ds-icon name="article"></ds-icon>
-													</span>
-													{post.data.title}
-												</ds-link>
-												<span class="surface__meta">
-													{formatPostDate(post.data.pubDate)} ·{" "}
-													{readingTimeLabel(post.body ?? "")}
-												</span>
-											</div>
-											<ds-text variant="muted">{post.data.description}</ds-text>
-										</article>
-									</li>
+								{featuredWriting.map(({ series, members }) => (
+									<SeriesStack series={series} members={members} />
 								))}
 							</ul>
 						)

@@ -3,6 +3,7 @@ title: 'The Coming Crash of Vibe-Coded Software'
 description: 'Why “vibe-coded” software will break in production: no craft, weak review, and systems nobody understands when they fail.'
 pubDate: '2026-02-16'
 tags: ['architecture']
+series: ai-and-craft
 ---
 
 I want to start by admitting that I will almost definitely have a bias when it comes to programming. Personally, I got into this field because I love the craft.
