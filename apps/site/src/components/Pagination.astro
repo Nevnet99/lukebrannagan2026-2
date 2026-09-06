@@ -1,0 +1,67 @@
+---
+interface Props {
+	/** Accessible name for the nav landmark */
+	label: string;
+	currentPage?: number;
+	totalPages?: number;
+	/** False keeps Previous/Next disabled (≤ one page of items) */
+	enabled?: boolean;
+	/**
+	 * When set, Previous/Next are links for SSR lists.
+	 * Omit for client-driven lists (writing filters).
+	 */
+	prevHref?: string | null;
+	nextHref?: string | null;
+}
+
+const {
+	label,
+	currentPage = 1,
+	totalPages = 1,
+	enabled = false,
+	prevHref = null,
+	nextHref = null,
+} = Astro.props;
+
+const canPrev = enabled && currentPage > 1;
+const canNext = enabled && currentPage < totalPages;
+const useLinks = prevHref != null || nextHref != null;
+---
+
+<nav class="pagination" data-pagination aria-label={label}>
+	{
+		useLinks && canPrev && prevHref ? (
+			<a class="pagination__control" href={prevHref}>
+				Previous
+			</a>
+		) : (
+			<button
+				type="button"
+				class="pagination__control"
+				data-pagination-prev
+				disabled={!canPrev}
+			>
+				Previous
+			</button>
+		)
+	}
+	<p class="pagination__status" data-pagination-status aria-live="polite">
+		Page {currentPage} of {totalPages}
+	</p>
+	{
+		useLinks && canNext && nextHref ? (
+			<a class="pagination__control" href={nextHref}>
+				Next
+			</a>
+		) : (
+			<button
+				type="button"
+				class="pagination__control"
+				data-pagination-next
+				disabled={!canNext}
+			>
+				Next
+			</button>
+		)
+	}
+</nav>

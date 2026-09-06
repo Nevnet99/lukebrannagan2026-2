@@ -1,34 +1,201 @@
 ---
-import "@fontsource/ibm-plex-sans/400.css";
-import "@fontsource/ibm-plex-sans/500.css";
-import "@fontsource/ibm-plex-mono/400.css";
+import geistLatin from "@fontsource-variable/geist/files/geist-latin-wght-normal.woff2?url";
+import geistMonoLatin from "@fontsource-variable/geist-mono/files/geist-mono-latin-wght-normal.woff2?url";
 import "@lukebrannagan/design-system/styles/global.css";
+import "../styles/surfaces.css";
+import "../styles/atmosphere.css";
 import { site } from "@lukebrannagan/content";
+import { themeBootScript } from "@lukebrannagan/design-system/theme";
 
 interface Props {
 	title?: string;
 	description?: string;
+	/** Absolute or site-relative path; defaults to site.ogImage */
+	image?: string;
+	ogType?: "website" | "article";
+	noindex?: boolean;
+	/** Extra JSON-LD objects merged with defaults */
+	jsonLd?: Record<string, unknown> | Record<string, unknown>[];
+	article?: {
+		publishedTime: Date;
+		modifiedTime?: Date;
+		tags?: string[];
+	};
 }
 
-const { title = site.title, description = site.description } = Astro.props;
+const {
+	title = site.title,
+	description = site.description,
+	image = site.ogImage,
+	ogType = "website",
+	noindex = false,
+	jsonLd,
+	article,
+} = Astro.props;
+
 const pageTitle = title === site.name ? title : `${title} · ${site.name}`;
+const canonicalURL = new URL(Astro.url.pathname, Astro.site ?? site.url);
+const imageURL = image
+	? image.startsWith("http")
+		? image
+		: new URL(image, Astro.site ?? site.url).href
+	: undefined;
+
+const personId = `${site.url}/#person`;
+const websiteId = `${site.url}/#website`;
+
+const defaultJsonLd: Record<string, unknown>[] = [];
+
+if (Astro.url.pathname === "/" || Astro.url.pathname === "") {
+	defaultJsonLd.push(
+		{
+			"@context": "https://schema.org",
+			"@type": "WebSite",
+			"@id": websiteId,
+			url: site.url,
+			name: site.name,
+			description: site.description,
+			inLanguage: site.language,
+			publisher: { "@id": personId },
+		},
+		{
+			"@context": "https://schema.org",
+			"@type": "Person",
+			"@id": personId,
+			name: site.name,
+			url: site.url,
+			email: site.email,
+			jobTitle: site.role,
+			address: {
+				"@type": "PostalAddress",
+				addressLocality: "Manchester",
+				addressCountry: "GB",
+			},
+			sameAs: [site.github, site.linkedin],
+		},
+	);
+}
+
+if (ogType === "article" && article) {
+	defaultJsonLd.push({
+		"@context": "https://schema.org",
+		"@type": "BlogPosting",
+		headline: title,
+		description,
+		datePublished: article.publishedTime.toISOString(),
+		...(article.modifiedTime && {
+			dateModified: article.modifiedTime.toISOString(),
+		}),
+		author: {
+			"@type": "Person",
+			"@id": personId,
+			name: site.name,
+			url: site.url,
+		},
+		mainEntityOfPage: {
+			"@type": "WebPage",
+			"@id": canonicalURL.href,
+		},
+		url: canonicalURL.href,
+		...(imageURL && { image: [imageURL] }),
+		...(article.tags?.length && { keywords: article.tags.join(", ") }),
+		inLanguage: site.language,
+		isPartOf: { "@id": websiteId },
+	});
+}
+
+const extraLd = jsonLd ? (Array.isArray(jsonLd) ? jsonLd : [jsonLd]) : [];
+const structuredData = [...defaultJsonLd, ...extraLd];
 ---
 
 <!doctype html>
-<html lang="en">
+<html lang={site.language}>
 	<head>
 		<meta charset="UTF-8" />
+		<script is:inline set:html={themeBootScript}></script>
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
 		<meta name="description" content={description} />
+		<meta name="author" content={site.name} />
+		<link rel="canonical" href={canonicalURL.href} />
+		{
+			noindex ? (
+				<meta name="robots" content="noindex, nofollow" />
+			) : (
+				<meta name="robots" content="index, follow" />
+			)
+		}
+
+		<meta property="og:type" content={ogType} />
+		<meta property="og:site_name" content={site.name} />
+		<meta property="og:locale" content={site.locale} />
+		<meta property="og:title" content={pageTitle} />
+		<meta property="og:description" content={description} />
+		<meta property="og:url" content={canonicalURL.href} />
+		{imageURL && <meta property="og:image" content={imageURL} />}
+		{
+			ogType === "article" && article && (
+				<>
+					<meta
+						property="article:published_time"
+						content={article.publishedTime.toISOString()}
+					/>
+					{article.modifiedTime && (
+						<meta
+							property="article:modified_time"
+							content={article.modifiedTime.toISOString()}
+						/>
+					)}
+					<meta property="article:author" content={site.name} />
+					{article.tags?.map((tag) => (
+						<meta property="article:tag" content={tag} />
+					))}
+				</>
+			)
+		}
+
+		<meta name="twitter:card" content={imageURL ? "summary_large_image" : "summary"} />
+		<meta name="twitter:title" content={pageTitle} />
+		<meta name="twitter:description" content={description} />
+		{imageURL && <meta name="twitter:image" content={imageURL} />}
+
+		<link
+			rel="alternate"
+			type="application/rss+xml"
+			title={`${site.name} — Writing`}
+			href={new URL("/rss.xml", Astro.site ?? site.url).href}
+		/>
+		<link rel="sitemap" href="/sitemap-index.xml" />
+
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<link
+			rel="preload"
+			href={geistLatin}
+			as="font"
+			type="font/woff2"
+			crossorigin="anonymous"
+		/>
+		<link
+			rel="preload"
+			href={geistMonoLatin}
+			as="font"
+			type="font/woff2"
+			crossorigin="anonymous"
+		/>
 		<meta name="generator" content={Astro.generator} />
 		<title>{pageTitle}</title>
+
+		{
+			structuredData.map((data) => (
+				<script type="application/ld+json" set:html={JSON.stringify(data)} />
+			))
+		}
 	</head>
 	<body>
 		<ds-skip-links></ds-skip-links>
 		<slot />
 		<script>
 			import "@lukebrannagan/design-system";
+			import "../scripts/analytics";
 		</script>
 	</body>
 </html>

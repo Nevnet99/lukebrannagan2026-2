@@ -11,6 +11,21 @@
 				"command": "vitest run",
 				"cwd": "libs/design-system"
 			}
+		},
+		"storybook": {
+			"executor": "nx:run-commands",
+			"options": {
+				"command": "storybook dev --port 6006 --config-dir .storybook",
+				"cwd": "libs/design-system"
+			}
+		},
+		"build-storybook": {
+			"executor": "nx:run-commands",
+			"outputs": ["{workspaceRoot}/dist/storybook/design-system"],
+			"options": {
+				"command": "storybook build --config-dir .storybook --output-dir ../../dist/storybook/design-system",
+				"cwd": "libs/design-system"
+			}
 		}
 	}
 }

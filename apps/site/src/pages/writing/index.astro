@@ -1,18 +1,668 @@
 ---
+import { type CollectionEntry, getCollection } from "astro:content";
+import {
+	getSeries,
+	getSeriesForCollection,
+	isWritingPubliclyLinked,
+	readingTimeLabel,
+	type Series,
+	site,
+	sortWritingTopicIds,
+	writingTopicLabel,
+} from "@lukebrannagan/content";
+import Pagination from "../../components/Pagination.astro";
+import SeriesStack from "../../components/SeriesStack.astro";
 import PageLayout from "../../layouts/PageLayout.astro";
+import { formatPostDate } from "../../lib/dates";
+import { pageCount, paginationEnabled } from "../../lib/pagination";
+
+type WritingIndexEntry =
+	| {
+			type: "series";
+			series: Series;
+			members: CollectionEntry<"writing">[];
+	  }
+	| { type: "post"; post: CollectionEntry<"writing"> };
+
+const allPosts = (await getCollection("writing")).sort(
+	(a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
+);
+const archivedCount = allPosts.filter(
+	(post) => post.data.archived && isWritingPubliclyLinked(post.data),
+).length;
+const postsById = new Map(allPosts.map((post) => [post.id, post]));
+
+function publicSeriesMembers(series: Series) {
+	return series.memberSlugs
+		.map((id) => postsById.get(id))
+		.filter(
+			(entry): entry is CollectionEntry<"writing"> =>
+				entry != null && isWritingPubliclyLinked(entry.data),
+		);
+}
+
+const writingSeries = getSeriesForCollection("writing").filter(
+	(series) => publicSeriesMembers(series).length > 0,
+);
+const seriesCount = writingSeries.length;
+
+const indexEntries: WritingIndexEntry[] = [];
+const seenSeries = new Set<string>();
+
+for (const post of allPosts) {
+	const belonging = post.data.series != null ? getSeries(post.data.series, "writing") : null;
+	if (belonging) {
+		if (!seenSeries.has(belonging.slug)) {
+			const members = publicSeriesMembers(belonging);
+			if (members.length === 0) continue;
+			seenSeries.add(belonging.slug);
+			indexEntries.push({ type: "series", series: belonging, members });
+		}
+		continue;
+	}
+	if (!isWritingPubliclyLinked(post.data)) continue;
+	indexEntries.push({ type: "post", post });
+}
+
+for (const series of writingSeries) {
+	if (seenSeries.has(series.slug)) continue;
+	const members = publicSeriesMembers(series);
+	if (members.length === 0) continue;
+	seenSeries.add(series.slug);
+	indexEntries.push({ type: "series", series, members });
+}
+
+const standaloneActivePosts = allPosts.filter((post) => {
+	if (post.data.archived || !isWritingPubliclyLinked(post.data)) return false;
+	if (post.data.series != null && getSeries(post.data.series, "writing")) {
+		return false;
+	}
+	return true;
+});
+
+/** All topics that appear on any listed post (incl. archived) — chips toggle with the archive switch. */
+const topics = sortWritingTopicIds(
+	allPosts.filter((post) => isWritingPubliclyLinked(post.data)).flatMap((post) => post.data.tags),
+);
+/** Topics present when archived is off (active posts + always-visible series members). */
+const topicsWhenArchivedOff = new Set(
+	sortWritingTopicIds([
+		...allPosts
+			.filter((post) => !post.data.archived && isWritingPubliclyLinked(post.data))
+			.flatMap((post) => post.data.tags),
+		...writingSeries.flatMap((series) =>
+			publicSeriesMembers(series)
+				.filter((post) => !post.data.archived)
+				.flatMap((post) => post.data.tags),
+		),
+	]),
+);
+const initialItemCount = seriesCount + standaloneActivePosts.length;
+const initialEnabled = paginationEnabled(initialItemCount);
+const initialPages = pageCount(initialItemCount);
+
+const statusLabel = [
+	seriesCount > 0 ? `${seriesCount} series` : null,
+	`${standaloneActivePosts.length} ${standaloneActivePosts.length === 1 ? "post" : "posts"}`,
+]
+	.filter(Boolean)
+	.join(" · ");
+
+function seriesFilterMeta(entry: Extract<WritingIndexEntry, { type: "series" }>) {
+	const { series, members } = entry;
+	const tags = [
+		...new Set(
+			members
+				.filter((member) => !member.data.archived && isWritingPubliclyLinked(member.data))
+				.flatMap((member) => member.data.tags),
+		),
+	];
+	const archivedTags = [
+		...new Set(
+			members
+				.filter((member) => member.data.archived && isWritingPubliclyLinked(member.data))
+				.flatMap((member) => member.data.tags),
+		),
+	];
+	const latest =
+		members.reduce<Date | null>((acc, member) => {
+			const next = member.data.pubDate;
+			return !acc || next > acc ? next : acc;
+		}, null) ?? new Date(0);
+	const searchText = [
+		series.title,
+		series.summary,
+		...(series.body ?? []),
+		...members.map((member) => member.data.title),
+		...members.map((member) => member.data.description),
+	].join("\n");
+
+	return {
+		series,
+		members: members.map((member) => ({ title: member.data.title })),
+		writingFilter: {
+			tags,
+			archivedTags,
+			pubDate: latest,
+			searchText,
+		},
+	};
+}
 ---
 
-<PageLayout title="Writing" description="Notes and essays.">
-	<ds-container>
-		<ds-stack gap="lg">
-			<header>
-				<ds-stack gap="sm">
-					<ds-text as="h1" variant="display">Writing</ds-text>
-					<ds-text variant="muted">
-						A place for notes and essays. Content collections can land here next.
-					</ds-text>
+<PageLayout title="Writing" description={site.writing.lede}>
+	<ds-container class="writing-layout">
+		{
+			standaloneActivePosts.length === 0 &&
+			archivedCount === 0 &&
+			seriesCount === 0 ? (
+				<ds-stack gap="2xl">
+					<header>
+						<ds-stack gap="sm">
+							<ds-text as="h1" variant="display">Writing</ds-text>
+							<ds-text variant="muted">{site.writing.lede}</ds-text>
+						</ds-stack>
+					</header>
+					<ds-stack gap="md">
+						<ds-text variant="muted">{site.writing.empty}</ds-text>
+						<p>
+							<ds-link href={site.writing.emptyAction.href}>
+								{site.writing.emptyAction.label}
+							</ds-link>
+						</p>
+					</ds-stack>
 				</ds-stack>
-			</header>
-		</ds-stack>
+			) : (
+				<div class="writing-body">
+					<header class="writing-hero">
+						<ds-stack gap="sm">
+							<ds-text as="h1" variant="display">Writing</ds-text>
+							<ds-text variant="muted">{site.writing.lede}</ds-text>
+							<p class="writing-feed">
+								<ds-link href="/rss.xml">{site.writing.rssLabel}</ds-link>
+							</p>
+						</ds-stack>
+					</header>
+
+					<aside class="filters" aria-label="Filter writing">
+						<form data-writing-filters role="search">
+						<div class="filters__search">
+							<label class="filters__label" for="writing-search">Search</label>
+							<input
+								id="writing-search"
+								class="filters__input"
+								type="search"
+								name="q"
+								data-writing-search
+								placeholder="Title or topic"
+								autocomplete="off"
+								spellcheck="false"
+							/>
+						</div>
+
+						{
+							writingSeries.length > 0 && (
+								<fieldset class="filters__tags">
+									<legend class="filters__label">Series</legend>
+									<div
+										class="filters__tag-list"
+										role="group"
+										aria-label="Filter by series"
+									>
+										{writingSeries.map((series) => (
+											<button
+												type="button"
+												class="filters__tag"
+												data-writing-series={series.slug}
+												aria-pressed="false"
+											>
+												{series.title}
+											</button>
+										))}
+									</div>
+								</fieldset>
+							)
+						}
+
+						{
+							topics.length > 0 && (
+								<fieldset class="filters__tags" data-writing-topics>
+									<legend class="filters__label">Topics</legend>
+									<div class="filters__tag-list" role="group" aria-label="Filter by topic">
+										{topics.map((topic) => (
+											<button
+												type="button"
+												class="filters__tag"
+												data-writing-tag={topic}
+												aria-pressed="false"
+												hidden={!topicsWhenArchivedOff.has(topic)}
+											>
+												{writingTopicLabel(topic)}
+											</button>
+										))}
+									</div>
+								</fieldset>
+							)
+						}
+
+						{
+							archivedCount > 0 && (
+								<div class="filters__archived">
+									<ds-switch
+										label="Archived"
+										name="archived"
+										data-writing-archived
+									></ds-switch>
+								</div>
+							)
+						}
+
+						<button
+							type="button"
+							class="filters__clear"
+							data-writing-clear
+							disabled
+							aria-hidden="true"
+						>
+							Clear filters
+						</button>
+						</form>
+					</aside>
+
+					<section class="writing-results" aria-label="Writing results">
+						<p
+							class="results__status"
+							data-writing-status
+							data-series-count={seriesCount}
+							aria-live="polite"
+						>
+							{statusLabel}
+						</p>
+
+						<ul class="surface-list" data-writing-list tabindex="-1">
+							{
+								indexEntries.map((entry) =>
+									entry.type === "series" ? (
+										<SeriesStack {...seriesFilterMeta(entry)} />
+									) : (
+										<li
+											data-writing-item
+											data-writing-kind="post"
+											data-title={entry.post.data.title}
+											data-description={entry.post.data.description}
+											data-tags={entry.post.data.tags
+												.map((tag) => tag.toLowerCase())
+												.join(",")}
+											data-series=""
+											data-listed={
+												entry.post.data.listed === false ? "false" : "true"
+											}
+											data-pub-date={entry.post.data.pubDate.toISOString()}
+											data-body={(entry.post.body ?? "").slice(0, 1200)}
+											data-archived={entry.post.data.archived ? "true" : "false"}
+											hidden={
+												entry.post.data.archived ||
+												entry.post.data.listed === false
+											}
+										>
+											<article class="surface surface--interactive">
+												<div class="surface__row">
+													<ds-link stretch href={`/writing/${entry.post.id}`}>
+														<span class="surface__icon">
+															<ds-icon name="article"></ds-icon>
+														</span>
+														{entry.post.data.title}
+													</ds-link>
+													<span class="surface__meta">
+														{entry.post.data.archived ? "Archived · " : ""}
+														{formatPostDate(entry.post.data.pubDate)} ·{" "}
+														{readingTimeLabel(entry.post.body ?? "")}
+													</span>
+												</div>
+												<ds-text variant="muted">
+													{entry.post.data.description}
+												</ds-text>
+												{entry.post.data.tags.length > 0 && (
+													<p class="surface__tags">
+														{entry.post.data.tags.map((tag) => (
+															<span class="surface__tag">
+																{writingTopicLabel(tag)}
+															</span>
+														))}
+													</p>
+												)}
+											</article>
+										</li>
+									),
+								)
+							}
+						</ul>
+
+						<p class="empty" data-writing-empty hidden>
+							<span data-writing-empty-label></span>
+							<button type="button" class="empty__action" data-writing-clear>
+								Clear filters
+							</button>
+						</p>
+
+						<Pagination
+							label="Writing pages"
+							currentPage={1}
+							totalPages={initialPages}
+							enabled={initialEnabled}
+						/>
+
+						{
+							archivedCount > 0 && (
+								<p class="archive-link">
+									<ds-link href="/writing/archived">Archived writing</ds-link>
+									{" · "}
+									{archivedCount} {archivedCount === 1 ? "post" : "posts"}
+								</p>
+							)
+						}
+					</section>
+				</div>
+			)
+		}
 	</ds-container>
 </PageLayout>
+
+<script>
+	import "../../scripts/writing-filter";
+</script>
+
+<style>
+	.writing-body {
+		--rail-width: 12rem;
+		--rail-gap: var(--space-xl);
+		display: grid;
+		gap: var(--space-section);
+		align-items: start;
+		grid-template-areas:
+			"hero"
+			"filters"
+			"results";
+	}
+
+	.writing-hero {
+		grid-area: hero;
+		min-inline-size: 0;
+	}
+
+	.writing-feed {
+		margin: 0;
+	}
+
+	.filters {
+		grid-area: filters;
+		display: flex;
+		flex-direction: column;
+		gap: var(--space-group);
+	}
+
+	.filters form {
+		display: contents;
+	}
+
+	.writing-results {
+		grid-area: results;
+		display: flex;
+		flex-direction: column;
+		gap: var(--space-group);
+		min-inline-size: 0;
+	}
+
+	.writing-results .archive-link {
+		margin-block-start: calc(var(--space-section) - var(--space-group));
+	}
+
+	/* Content stays at --page-max (nav width); filters hang in the left margin */
+	@media (min-width: 70rem) {
+		.writing-body {
+			grid-template-columns: var(--rail-width) minmax(0, 1fr);
+			grid-template-areas:
+				". hero"
+				"filters results";
+			column-gap: var(--rail-gap);
+			row-gap: var(--space-section);
+			width: calc(100% + var(--rail-width) + var(--rail-gap));
+			margin-inline-start: calc(-1 * (var(--rail-width) + var(--rail-gap)));
+		}
+
+		.filters {
+			position: sticky;
+			top: var(--space-xl);
+		}
+	}
+
+	.filters__search {
+		display: flex;
+		flex-direction: column;
+		gap: var(--space-label);
+	}
+
+	.results__status {
+		margin: 0;
+		font-family: var(--font-meta);
+		font-size: var(--font-size-xs);
+		letter-spacing: var(--letter-spacing-meta);
+		color: var(--color-fg-subtle);
+	}
+
+	.filters__label {
+		font-family: var(--font-meta);
+		font-size: var(--font-size-xs);
+		letter-spacing: var(--letter-spacing-meta);
+		color: var(--color-fg-subtle);
+		margin: 0;
+		padding: 0;
+	}
+
+	.filters__input {
+		appearance: none;
+		width: 100%;
+		min-height: var(--hit-min);
+		padding-inline: var(--space-sm);
+		border: 0;
+		border-radius: var(--radius-sm);
+		background: var(--color-bg-surface);
+		box-shadow: var(--shadow-surface);
+		color: var(--color-fg);
+		font: inherit;
+		font-size: var(--font-size-md);
+	}
+
+	@media (prefers-reduced-motion: no-preference) {
+		.filters__input {
+			transition-property: box-shadow, background-color;
+			transition-duration: var(--duration-fast);
+			transition-timing-function: var(--ease-out);
+		}
+
+		.filters__tag {
+			transition-property: color, background-color, box-shadow;
+			transition-duration: var(--duration-fast);
+			transition-timing-function: var(--ease-out);
+		}
+	}
+
+	.filters__input::placeholder {
+		color: var(--color-fg-subtle);
+	}
+
+	.filters__input:hover {
+		box-shadow: var(--shadow-surface-hover);
+	}
+
+	.filters__input:focus-visible {
+		outline: var(--focus-ring) solid var(--color-focus);
+		outline-offset: var(--focus-offset);
+	}
+
+	.filters__tags {
+		margin: 0;
+		padding: 0;
+		border: 0;
+		min-inline-size: 0;
+		display: flex;
+		flex-direction: column;
+		gap: var(--space-label);
+	}
+
+	/* Legend is not a normal flex item; float so gap matches .filters__search */
+	.filters__tags legend {
+		float: left;
+		width: 100%;
+		padding: 0;
+		margin: 0;
+	}
+
+	.filters__tag-list {
+		clear: both;
+		display: flex;
+		flex-wrap: wrap;
+		gap: var(--space-control);
+	}
+
+	.filters__tag {
+		appearance: none;
+		min-height: var(--hit-compact);
+		padding-inline: var(--space-sm);
+		border: 0;
+		border-radius: var(--radius-sm);
+		background: var(--color-bg-surface);
+		box-shadow: var(--shadow-surface);
+		color: var(--color-fg-muted);
+		font: inherit;
+		font-family: var(--font-meta);
+		font-size: var(--font-size-xs);
+		letter-spacing: var(--letter-spacing-meta);
+		cursor: pointer;
+	}
+
+	.filters__tag::before {
+		content: none;
+	}
+
+	@media (hover: hover) {
+		.filters__tag:hover {
+			color: var(--color-accent-text);
+			background: var(--color-bg-surface-hover);
+			box-shadow: var(--shadow-surface-hover);
+		}
+	}
+
+	.filters__tag[aria-pressed="true"] {
+		color: var(--color-accent-text);
+		background: var(--color-accent-subtle);
+		box-shadow: var(--shadow-surface-hover);
+	}
+
+	.filters__tag:focus-visible {
+		outline: var(--focus-ring) solid var(--color-focus);
+		outline-offset: var(--focus-offset);
+	}
+
+	/* Reserve space so enabling clear does not shift the rail */
+	.filters__clear,
+	.empty__action {
+		appearance: none;
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		min-height: var(--hit-compact);
+		padding-inline: var(--space-sm);
+		border: 0;
+		border-radius: var(--radius-sm);
+		background: var(--color-bg-surface);
+		box-shadow: var(--shadow-surface);
+		color: var(--color-fg-muted);
+		font: inherit;
+		font-size: var(--font-size-xs);
+		font-family: var(--font-meta);
+		letter-spacing: var(--letter-spacing-meta);
+		text-decoration: none;
+		cursor: pointer;
+		align-self: flex-start;
+	}
+
+	@media (prefers-reduced-motion: no-preference) {
+		.filters__clear,
+		.empty__action {
+			transition-property: color, background-color, box-shadow;
+			transition-duration: var(--duration-fast);
+			transition-timing-function: var(--ease-out);
+		}
+	}
+
+	@media (hover: hover) {
+		.filters__clear:hover:not(:disabled),
+		.empty__action:hover {
+			color: var(--color-accent-text);
+			background: var(--color-bg-surface-hover);
+			box-shadow: var(--shadow-surface-hover);
+		}
+	}
+
+	.filters__clear:disabled {
+		visibility: hidden;
+		cursor: default;
+	}
+
+	.filters__clear:focus-visible,
+	.empty__action:focus-visible {
+		outline: var(--focus-ring) solid var(--color-focus);
+		outline-offset: var(--focus-offset);
+	}
+
+	@media (forced-colors: active) {
+		.filters__clear,
+		.empty__action {
+			border: 1px solid ButtonText;
+		}
+
+		.filters__clear:focus-visible,
+		.empty__action:focus-visible {
+			outline: var(--focus-ring) solid Highlight;
+		}
+	}
+
+	.surface[hidden] {
+		display: none;
+	}
+
+	.surface__tags {
+		display: flex;
+		flex-wrap: wrap;
+		gap: var(--space-xs);
+		margin: 0;
+	}
+
+	.surface__tag {
+		font-family: var(--font-meta);
+		font-size: var(--font-size-xs);
+		letter-spacing: var(--letter-spacing-meta);
+		color: var(--color-fg-subtle);
+	}
+
+	.empty {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: baseline;
+		gap: var(--space-sm);
+		margin: 0;
+		color: var(--color-fg-muted);
+		font-size: var(--font-size-sm);
+	}
+
+	.empty[hidden] {
+		display: none;
+	}
+
+	.archive-link {
+		margin: 0;
+		font-size: var(--font-size-sm);
+		color: var(--color-fg-subtle);
+	}
+</style>

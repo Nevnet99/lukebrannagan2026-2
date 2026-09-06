@@ -1,0 +1,102 @@
+---
+export type TocItem = {
+	id: string;
+	label: string;
+	/** Heading depth; 3 indents under 2. Default 2. */
+	depth?: 2 | 3;
+};
+
+interface Props {
+	items: TocItem[];
+	label?: string;
+}
+
+const { items, label = "On this page" } = Astro.props;
+---
+
+{
+	items.length > 0 && (
+		<nav class="toc" aria-labelledby="toc-heading">
+			<h2 class="toc__label" id="toc-heading">
+				{label}
+			</h2>
+			<ol class="toc__list">
+				{items.map((item) => (
+					<li
+						class:list={[
+							"toc__item",
+							(item.depth ?? 2) >= 3 && "toc__item--sub",
+						]}
+					>
+						<a class="toc__link" href={`#${item.id}`}>
+							{item.label}
+						</a>
+					</li>
+				))}
+			</ol>
+		</nav>
+	)
+}
+
+<style>
+	.toc {
+		display: flex;
+		flex-direction: column;
+		gap: var(--space-label);
+	}
+
+	.toc__label {
+		margin: 0;
+		font-family: var(--font-meta);
+		font-size: var(--font-size-xs);
+		font-weight: var(--font-weight-regular);
+		letter-spacing: var(--letter-spacing-meta);
+		color: var(--color-fg-subtle);
+	}
+
+	.toc__list {
+		list-style: none;
+		margin: 0;
+		padding: 0;
+		display: flex;
+		flex-direction: column;
+		gap: var(--space-2xs);
+	}
+
+	.toc__item--sub {
+		padding-inline-start: var(--space-sm);
+	}
+
+	.toc__link {
+		display: inline-flex;
+		align-items: center;
+		min-height: var(--hit-compact);
+		padding-block: var(--space-3xs);
+		color: var(--color-fg-muted);
+		font-size: var(--font-size-sm);
+		line-height: var(--line-height-snug);
+		text-decoration: none;
+		text-wrap: balance;
+	}
+
+	@media (hover: hover) {
+		.toc__link:hover {
+			color: var(--color-accent-text);
+			text-decoration: underline;
+			text-decoration-thickness: from-font;
+			text-underline-offset: 0.12em;
+		}
+	}
+
+	.toc__link:focus-visible {
+		outline: var(--focus-ring) solid var(--color-focus);
+		outline-offset: var(--focus-offset);
+		color: var(--color-accent-text);
+	}
+
+	@media (forced-colors: active) {
+		.toc__link:focus-visible {
+			outline: var(--focus-ring) solid Highlight;
+		}
+	}
+</style>

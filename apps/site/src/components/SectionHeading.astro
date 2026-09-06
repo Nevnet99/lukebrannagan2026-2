@@ -1,0 +1,47 @@
+---
+interface Props {
+	id: string;
+	label: string;
+}
+
+const { id, label } = Astro.props;
+---
+
+<div class="section-heading">
+	<ds-text as="h2" id={id} variant="meta" class="section-heading__title">
+		{label}
+	</ds-text>
+	<button
+		type="button"
+		class="heading-permalink"
+		data-heading-id={id}
+		aria-label={`Copy link to ${label}`}
+	>
+		<svg
+			class="heading-permalink__icon"
+			viewBox="0 0 16 16"
+			aria-hidden="true"
+			focusable="false"
+		>
+			<path
+				fill="currentColor"
+				d="M6.354 5.5H4a2.5 2.5 0 0 0 0 5h2.354a.75.75 0 0 1 0 1.5H4a4 4 0 0 1 0-8h2.354a.75.75 0 0 1 0 1.5Zm3.292 0H12a2.5 2.5 0 0 1 0 5H9.646a.75.75 0 0 0 0 1.5H12a4 4 0 0 0 0-8H9.646a.75.75 0 0 0 0 1.5ZM5.5 7.25h5a.75.75 0 0 1 0 1.5h-5a.75.75 0 0 1 0-1.5Z"
+			></path>
+		</svg>
+	</button>
+</div>
+
+<style>
+	.section-heading {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: baseline;
+		gap: var(--space-2xs) var(--space-xs);
+	}
+
+	.section-heading__title {
+		flex: 1 1 auto;
+		min-width: 0;
+		max-width: none;
+	}
+</style>

@@ -1,4 +1,5 @@
 import { fileURLToPath } from "node:url";
+import sitemap from "@astrojs/sitemap";
 import { defineConfig } from "astro/config";
 
 const root = fileURLToPath(new URL("../..", import.meta.url));
@@ -8,7 +9,19 @@ export default defineConfig({
 	site: "https://lukebrannagan.com",
 	output: "static",
 	outDir: "../../dist/apps/site",
-	integrations: [],
+	integrations: [
+		sitemap({
+			filter: (page) =>
+				!page.includes("/404") &&
+				!page.includes("/accessibility-getting-started-quick-wins") &&
+				!page.includes("/if-youre-not-using-storybook") &&
+				!page.includes("/usecallback-and-usememo"),
+		}),
+	],
+	redirects: {
+		"/blog": "/writing",
+		"/blog/[slug]": "/writing/[slug]",
+	},
 	vite: {
 		resolve: {
 			alias: {

@@ -1,0 +1,591 @@
+/**
+ * Shared list + surface styles for site pages.
+ * Interactive cards: title carries the link; ds-link[stretch] paints ::after over the card.
+ * Every card uses the same rhythm: title/meta row, then optional muted body.
+ */
+
+.surface-list {
+	list-style: none;
+	padding: 0;
+	margin: 0;
+	display: flex;
+	flex-direction: column;
+	gap: var(--space-md);
+	overflow: visible;
+}
+
+.surface-list > li {
+	margin: 0;
+	padding: 0;
+	min-inline-size: 0;
+}
+
+.surface {
+	display: flex;
+	flex-direction: column;
+	gap: var(--space-xs);
+	padding: var(--space-md);
+	border-radius: var(--radius-md);
+	background: var(--color-bg-surface);
+	box-shadow: var(--shadow-surface);
+}
+
+.surface--interactive {
+	position: relative;
+	isolation: isolate;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+	.surface--interactive {
+		transition-property: background-color, box-shadow, transform;
+		transition-duration: var(--duration-lift);
+		transition-timing-function: var(--ease-lift);
+	}
+}
+
+@media (hover: hover) {
+	.surface--interactive:hover,
+	.surface--interactive:focus-within {
+		background: var(--color-bg-surface-hover);
+		box-shadow: var(--shadow-surface-hover);
+	}
+}
+
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+	.surface--interactive:hover,
+	.surface--interactive:focus-within {
+		transform: translateY(calc(var(--lift-distance) * -1)) scale(var(--lift-scale));
+		z-index: 1;
+	}
+}
+
+.surface__row {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: baseline;
+	justify-content: space-between;
+	gap: var(--space-2xs) var(--space-lg);
+}
+
+.surface__heading {
+	display: inline-flex;
+	align-items: center;
+	gap: var(--space-sm);
+	min-inline-size: 0;
+}
+
+/* Mist disc behind the Material Symbol */
+.surface__icon {
+	display: inline-flex;
+	flex-shrink: 0;
+	align-items: center;
+	justify-content: center;
+	inline-size: 1.75rem;
+	block-size: 1.75rem;
+	border-radius: 999px;
+	background: var(--mist-200);
+	color: var(--color-fg-muted);
+	pointer-events: none;
+}
+
+:root[data-theme="dark"] .surface__icon {
+	background: var(--mist-800);
+}
+
+.surface__icon ds-icon {
+	--icon-size: 1rem;
+}
+
+.surface__row ds-link[stretch]::part(anchor) {
+	gap: var(--space-sm);
+	align-items: center;
+}
+
+.surface__meta {
+	position: relative;
+	z-index: 0;
+	font-family: var(--font-meta);
+	font-size: var(--font-size-xs);
+	color: var(--color-fg-subtle);
+	letter-spacing: var(--letter-spacing-meta);
+}
+
+.surface__meta--status {
+	text-transform: uppercase;
+}
+
+/* Card body matches work/writing summaries (ds-text defaults to --measure). */
+.surface > ds-text {
+	max-width: none;
+}
+
+/* Keep secondary copy under the stretch hit target without stealing clicks. */
+.surface--interactive > :not(.surface__row) {
+	position: relative;
+	z-index: 0;
+	pointer-events: none;
+}
+
+/* List pagination — disabled until the collection exceeds one page */
+.pagination {
+	display: grid;
+	grid-template-columns: 1fr auto 1fr;
+	align-items: center;
+	gap: var(--space-sm);
+	margin-block-start: var(--space-section);
+}
+
+.pagination__status {
+	margin: 0;
+	grid-column: 2;
+	justify-self: center;
+	font-family: var(--font-meta);
+	font-size: var(--font-size-xs);
+	letter-spacing: var(--letter-spacing-meta);
+	color: var(--color-fg-subtle);
+	text-align: center;
+}
+
+.pagination > :first-child {
+	justify-self: start;
+}
+
+.pagination > :last-child {
+	justify-self: end;
+}
+
+.pagination__control {
+	appearance: none;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	box-sizing: border-box;
+	min-height: var(--hit-compact);
+	/* Match "Previous" so Prev/Next share width and the status stays centred */
+	min-inline-size: 6.5rem;
+	padding-inline: var(--space-sm);
+	border: 0;
+	border-radius: var(--radius-sm);
+	background: var(--color-bg-surface);
+	box-shadow: var(--shadow-sm);
+	color: var(--color-fg-muted);
+	font: inherit;
+	font-size: var(--font-size-xs);
+	font-family: var(--font-meta);
+	letter-spacing: var(--letter-spacing-meta);
+	text-decoration: none;
+	cursor: pointer;
+}
+
+a.pagination__control {
+	color: var(--color-fg-muted);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+	.pagination__control {
+		transition-property: color, background-color, box-shadow;
+		transition-duration: var(--duration-fast);
+		transition-timing-function: var(--ease-out);
+	}
+}
+
+@media (hover: hover) {
+	.pagination__control:hover:not(:disabled) {
+		color: var(--color-accent-text);
+		background: var(--color-bg-surface-hover);
+		box-shadow: var(--shadow-surface-hover);
+	}
+}
+
+.pagination__control:disabled {
+	opacity: 0.45;
+	cursor: not-allowed;
+	color: var(--color-fg-subtle);
+}
+
+.pagination__control:focus-visible {
+	outline: var(--focus-ring) solid var(--color-focus);
+	outline-offset: var(--focus-offset);
+}
+
+@media (forced-colors: active) {
+	.pagination__control {
+		border: 1px solid ButtonText;
+	}
+
+	.pagination__control:disabled {
+		border-color: GrayText;
+		color: GrayText;
+	}
+
+	.pagination__control:focus-visible {
+		outline: var(--focus-ring) solid Highlight;
+	}
+}
+
+/*
+ * Inline code (`backticks` in markdown / RichText).
+ * Same mono + chip treatment in writing .prose and work .rich-text.
+ */
+.prose :not(pre) > code,
+.prose p code,
+.prose li code,
+.prose td code,
+.prose th code,
+.rich-text code {
+	font-family: var(--font-meta);
+	font-size: 0.9em;
+	line-height: inherit;
+	color: var(--color-fg);
+	background: var(--color-accent-subtle);
+	padding: 0.12em 0.4em;
+	border-radius: var(--radius-sm);
+	box-decoration-break: clone;
+	-webkit-box-decoration-break: clone;
+}
+
+.prose pre code {
+	font-size: inherit;
+	color: inherit;
+	background: transparent;
+	padding: 0;
+	border-radius: 0;
+	box-decoration-break: unset;
+	-webkit-box-decoration-break: unset;
+}
+
+.prose pre {
+	margin: 0;
+	padding: var(--space-md);
+	overflow-x: auto;
+	background: var(--color-accent-subtle);
+	border: var(--rule) solid var(--color-border);
+	border-radius: var(--radius-sm);
+	font-family: var(--font-meta);
+	font-size: var(--font-size-sm);
+	line-height: var(--line-height-normal);
+}
+
+/* Heading permalinks (writing prose + selected work) */
+.heading-with-permalink {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: baseline;
+	gap: var(--space-2xs) var(--space-xs);
+}
+
+.heading-permalink {
+	appearance: none;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	flex: 0 0 auto;
+	box-sizing: border-box;
+	min-width: var(--hit-compact);
+	min-height: var(--hit-compact);
+	margin: 0;
+	padding: 0;
+	border: 0;
+	border-radius: var(--radius-sm);
+	background: transparent;
+	color: var(--color-fg-subtle);
+	cursor: pointer;
+	opacity: 0.7;
+}
+
+.heading-permalink__icon {
+	display: block;
+	inline-size: 1rem;
+	block-size: 1rem;
+}
+
+@media (hover: hover) {
+	.heading-permalink {
+		opacity: 0;
+	}
+
+	.heading-with-permalink:hover .heading-permalink,
+	.section-heading:hover .heading-permalink,
+	.heading-permalink:hover,
+	.heading-permalink:focus-visible {
+		opacity: 1;
+		color: var(--color-accent-text);
+		background: var(--color-bg-surface);
+		box-shadow: var(--shadow-border);
+	}
+}
+
+.heading-permalink:focus-visible {
+	opacity: 1;
+	outline: var(--focus-ring) solid var(--color-focus);
+	outline-offset: var(--focus-offset);
+	color: var(--color-accent-text);
+	background: var(--color-bg-surface);
+	box-shadow: var(--shadow-border);
+}
+
+@media (forced-colors: active) {
+	.heading-permalink {
+		opacity: 1;
+		border: 1px solid ButtonText;
+	}
+
+	.heading-permalink:focus-visible {
+		outline: var(--focus-ring) solid Highlight;
+	}
+}
+
+/* Always show on touch / coarse pointers where hover never sticks */
+@media (hover: none) {
+	.heading-permalink {
+		opacity: 0.85;
+	}
+}
+
+.permalink-toast {
+	position: fixed;
+	z-index: 40;
+	inset-block-end: max(var(--space-xl), env(safe-area-inset-bottom, 0px));
+	inset-inline-start: 50%;
+	translate: -50% 0;
+	max-width: min(20rem, calc(100vw - (var(--page-gutter) * 2)));
+	margin: 0;
+	padding: var(--space-sm) var(--space-md);
+	border-radius: var(--radius-sm);
+	/* Solid mist chip so it reads against the page */
+	background: var(--mist-800);
+	color: var(--mist-50);
+	box-shadow: var(--shadow-overlay);
+	font-family: var(--font-meta);
+	font-size: var(--font-size-xs);
+	letter-spacing: var(--letter-spacing-meta);
+	line-height: var(--line-height-snug);
+	text-align: center;
+}
+
+:root[data-theme="dark"] .permalink-toast {
+	background: var(--mist-200);
+	color: var(--mist-950);
+}
+
+@media (forced-colors: active) {
+	.permalink-toast {
+		background: Canvas;
+		color: CanvasText;
+		border: 1px solid CanvasText;
+		forced-color-adjust: none;
+	}
+}
+
+.permalink-toast[hidden] {
+	display: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+	.permalink-toast:not([hidden]) {
+		animation: permalink-toast-in var(--duration-fast) var(--ease-out);
+	}
+}
+
+@keyframes permalink-toast-in {
+	from {
+		opacity: 0;
+		translate: -50% 0.35rem;
+	}
+	to {
+		opacity: 1;
+		translate: -50% 0;
+	}
+}
+
+/*
+ * Series stack — full-width front face (matches sibling surfaces).
+ * Peeks anchor left/right, keep unique --layer values, and only rise above
+ * the face on hover (never share one z-index — that caused z-fighting).
+ */
+.series-stack {
+	list-style: none;
+	overflow: visible;
+}
+
+.series-stack__frame {
+	position: relative;
+	overflow: visible;
+	isolation: isolate;
+}
+
+.series-stack__deck {
+	position: absolute;
+	inset: 0;
+	pointer-events: none;
+	z-index: 1;
+	overflow: visible;
+}
+
+.series-stack__card {
+	border-radius: var(--radius-md);
+	background: var(--color-bg-surface);
+	box-shadow: var(--shadow-surface);
+}
+
+.series-stack__card--back {
+	position: absolute;
+	inset-block-start: 50%;
+	/* Rest: under the face; unique layer so overlaps don’t flicker */
+	z-index: var(--layer, 1);
+	display: flex;
+	align-items: center;
+	box-sizing: border-box;
+	inline-size: min(10.5rem, 36%);
+	block-size: min(3.75rem, calc(100% - 1rem));
+	padding: var(--space-sm) var(--space-md);
+	color: var(--color-fg-muted);
+	opacity: 0.85;
+	background: color-mix(in oklch, var(--color-accent-subtle) 55%, var(--color-bg-surface));
+	box-shadow: var(--shadow-sm);
+	transform: translateY(calc(-50% + var(--rest-ty, 0px))) translateX(var(--rest-tx, 0))
+		rotate(var(--rest-rot, 0deg));
+	transform-origin: 50% 50%;
+	/* Promote to own compositor layer; avoids coplanar flicker with siblings */
+	will-change: transform;
+	backface-visibility: hidden;
+}
+
+.series-stack__card--start {
+	inset-inline-start: 0;
+}
+
+.series-stack__card--end {
+	inset-inline-end: 0;
+}
+
+.series-stack__card-title {
+	font-size: var(--font-size-sm);
+	font-weight: var(--font-weight-medium);
+	line-height: var(--line-height-snug);
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	max-inline-size: 100%;
+}
+
+.series-stack__card--front {
+	position: relative;
+	z-index: 5;
+	inline-size: 100%;
+}
+
+/* Series face — Tide wash, distinct from plain case-study surfaces */
+.surface--series {
+	background: var(--color-accent-subtle);
+	box-shadow: var(--shadow-surface);
+}
+
+.surface--series .surface__icon--series,
+.surface__icon--series {
+	background: color-mix(in oklch, var(--color-accent) 18%, var(--color-bg-surface));
+	color: var(--color-accent-text);
+}
+
+:root[data-theme="dark"] .surface__icon--series {
+	background: color-mix(in oklch, var(--color-accent) 28%, var(--color-bg-surface));
+	color: var(--color-accent-text);
+}
+
+.series-stack__meta {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-end;
+	gap: 0.15rem;
+	text-align: end;
+}
+
+.series-stack__kind {
+	font-family: var(--font-meta);
+	font-size: var(--font-size-xs);
+	letter-spacing: var(--letter-spacing-meta);
+	text-transform: uppercase;
+	color: var(--color-accent-text);
+	line-height: 1.2;
+}
+
+.series-stack__count {
+	color: var(--color-fg-subtle);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+	.series-stack__card--back {
+		transition-property: opacity, transform, box-shadow, color;
+		transition-duration: var(--duration-enter);
+		transition-timing-function: var(--ease-out);
+		transition-delay: 0ms;
+	}
+
+	.surface--series {
+		transition-property: background-color, box-shadow, transform;
+		transition-duration: var(--duration-lift);
+		transition-timing-function: var(--ease-lift);
+	}
+}
+
+@media (hover: hover) {
+	.series-stack:hover .series-stack__card--front.surface--series,
+	.series-stack:focus-within .series-stack__card--front.surface--series {
+		background: color-mix(in oklch, var(--color-accent-subtle) 72%, var(--color-bg-surface-hover));
+		box-shadow: var(--shadow-surface-hover);
+	}
+}
+
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+	.series-stack:hover .series-stack__card--front.surface--series,
+	.series-stack:focus-within .series-stack__card--front.surface--series {
+		transform: translateY(calc(var(--lift-distance) * -1)) scale(var(--lift-scale));
+	}
+}
+
+/*
+ * Above the face on hover, but keep relative --layer so siblings never tie.
+ * Front stays z-index: 5; peeks use 6 + layer.
+ */
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+	.series-stack:is(:hover, :focus-within) .series-stack__card--back {
+		z-index: calc(6 + var(--layer, 1));
+		opacity: 1;
+		color: var(--color-fg);
+		box-shadow: var(--shadow-raised);
+		transform: translateY(calc(-50% + var(--pop-ty, 0px))) translateX(var(--pop-tx, 0))
+			rotate(var(--pop-rot, 0deg));
+		transition-delay: var(--pop-delay, 0ms);
+	}
+}
+
+@media (hover: none), (prefers-reduced-motion: reduce) {
+	.series-stack__card--back {
+		z-index: calc(6 + var(--layer, 1));
+		opacity: 0.92;
+		color: var(--color-fg);
+		transform: translateY(calc(-50% + var(--pop-ty, 0px))) translateX(calc(var(--pop-tx, 0) * 0.55))
+			rotate(var(--pop-rot, 0deg));
+	}
+}
+
+@media (max-width: 40rem) {
+	.series-stack__card--back {
+		inline-size: min(8rem, 42%);
+	}
+
+	.series-stack__card--back[data-series-peek="0"] {
+		--rest-tx: -26%;
+		--pop-tx: -68%;
+	}
+
+	.series-stack__card--back[data-series-peek="1"] {
+		--rest-tx: -6%;
+		--pop-tx: -36%;
+	}
+
+	.series-stack__card--back[data-series-peek="2"] {
+		--rest-tx: 26%;
+		--pop-tx: 68%;
+	}
+}

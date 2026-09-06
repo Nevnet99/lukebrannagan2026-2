@@ -1,0 +1,197 @@
+---
+import { site } from "@lukebrannagan/content";
+import PageLayout from "../layouts/PageLayout.astro";
+
+const updated = "4 September 2026";
+---
+
+<PageLayout
+	title="Cookie policy"
+	description="What cookies and similar storage this site uses, and how to change your choice."
+>
+	<ds-container>
+		<article class="legal">
+			<ds-stack gap="xl">
+				<header>
+					<ds-stack gap="sm">
+						<ds-breadcrumb
+							items={JSON.stringify([
+								{ label: "Home", href: "/" },
+								{ label: "Cookie policy" },
+							])}
+						></ds-breadcrumb>
+						<ds-text as="h1" variant="display">Cookie policy</ds-text>
+						<ds-text variant="muted">Last updated {updated}</ds-text>
+					</ds-stack>
+				</header>
+
+				<section aria-labelledby="who-heading">
+					<ds-stack gap="sm">
+						<ds-text as="h2" id="who-heading" variant="meta">Who this covers</ds-text>
+						<p>
+							This site is run by {site.name} ({site.location}). Questions:
+							{" "}
+							<ds-link href={`mailto:${site.email}`}>{site.email}</ds-link>.
+						</p>
+					</ds-stack>
+				</section>
+
+				<section aria-labelledby="what-heading">
+					<ds-stack gap="sm">
+						<ds-text as="h2" id="what-heading" variant="meta">What I store</ds-text>
+						<p>
+							Browsers keep small bits of data on your device. Here is everything this site
+							sets on purpose.
+						</p>
+						<ul class="legal__list">
+							<li>
+								<strong>Theme preference</strong> — remembers light or dark mode. Stored in
+								<code>localStorage</code>. Needed for the theme toggle to work. Not used for
+								tracking.
+							</li>
+							<li>
+								<strong>Analytics consent</strong> — remembers whether you accepted or
+								rejected analytics. Stored in <code>localStorage</code> under
+								<code>lb-analytics-consent</code>.
+							</li>
+							<li>
+								<strong>PostHog analytics</strong> — only after you click Accept. PostHog
+								sets cookies and/or <code>localStorage</code> items so visits can be counted
+								(pages viewed, rough device type, referring site). No advertising network. I
+								use the EU PostHog cloud when configured that way.
+							</li>
+						</ul>
+						<p>
+							Amazon “Buy on Amazon” links on book reviews are affiliate links. Amazon may set
+							its own cookies when you open their site. That happens on Amazon’s domain, not
+							mine.
+						</p>
+					</ds-stack>
+				</section>
+
+				<section aria-labelledby="choice-heading">
+					<ds-stack gap="sm">
+						<ds-text as="h2" id="choice-heading" variant="meta">Your choice</ds-text>
+						<p>
+							Analytics is off until you accept. Reject and PostHog never loads. You can change
+							your mind below — the choice is stored on this device only.
+						</p>
+						<p class="legal__status" data-cookie-status>
+							Checking your current choice…
+						</p>
+						<div class="legal__prefs">
+							<button type="button" class="legal__btn legal__btn--ghost" data-cookie-preference="denied">
+								Reject analytics
+							</button>
+							<button type="button" class="legal__btn legal__btn--solid" data-cookie-preference="granted">
+								Accept analytics
+							</button>
+						</div>
+					</ds-stack>
+				</section>
+
+				<section aria-labelledby="more-heading">
+					<ds-stack gap="sm">
+						<ds-text as="h2" id="more-heading" variant="meta">Clearing data</ds-text>
+						<p>
+							Clear site data for {site.url.replace(/^https?:\/\//, "")} in your browser
+							settings to wipe theme preference, consent, and any PostHog storage. You can also
+							block cookies for this site in the browser; the theme toggle and analytics may
+							stop remembering choices.
+						</p>
+					</ds-stack>
+				</section>
+			</ds-stack>
+		</article>
+	</ds-container>
+</PageLayout>
+
+<script>
+	import { readAnalyticsConsent } from "../lib/analytics";
+
+	const status = document.querySelector("[data-cookie-status]");
+	if (status) {
+		const value = readAnalyticsConsent();
+		status.textContent =
+			value === "granted"
+				? "Analytics cookies are on."
+				: value === "denied"
+					? "Analytics cookies are off."
+					: "You have not chosen yet. Analytics is off until you accept.";
+	}
+</script>
+
+<style>
+	.legal p {
+		margin: 0;
+		max-width: 40rem;
+		font-family: var(--font-body);
+		font-size: var(--font-size-md);
+		line-height: var(--line-height-body);
+		color: var(--color-fg);
+	}
+
+	.legal__list {
+		margin: 0;
+		padding-inline-start: 1.25rem;
+		max-width: 40rem;
+		display: flex;
+		flex-direction: column;
+		gap: var(--space-sm);
+		font-family: var(--font-body);
+		font-size: var(--font-size-md);
+		line-height: var(--line-height-body);
+		color: var(--color-fg);
+	}
+
+	.legal__list code {
+		font-family: var(--font-mono);
+		font-size: 0.9em;
+	}
+
+	.legal__status {
+		color: var(--color-fg-muted);
+	}
+
+	.legal__prefs {
+		display: flex;
+		flex-wrap: wrap;
+		gap: var(--space-xs);
+	}
+
+	.legal__btn {
+		appearance: none;
+		border: var(--rule) solid var(--color-border);
+		border-radius: var(--radius-sm);
+		padding: 0.55rem 0.9rem;
+		font-family: var(--font-body);
+		font-size: var(--font-size-sm);
+		font-weight: var(--font-weight-medium);
+		line-height: 1;
+		min-block-size: var(--hit-min, 2.75rem);
+		cursor: pointer;
+		color: var(--color-fg);
+		background: transparent;
+	}
+
+	.legal__btn:focus-visible {
+		outline: var(--focus-ring) solid var(--color-focus);
+		outline-offset: var(--focus-offset);
+	}
+
+	.legal__btn--solid {
+		background: var(--color-fg);
+		border-color: var(--color-fg);
+		color: var(--color-bg);
+	}
+
+	@media (hover: hover) {
+		.legal__btn--ghost:hover {
+			border-color: var(--color-fg-muted);
+		}
+
+		.legal__btn--solid:hover {
+			opacity: 0.92;
+		}
+	}
+</style>

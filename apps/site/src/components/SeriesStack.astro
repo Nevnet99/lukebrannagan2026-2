@@ -1,0 +1,137 @@
+---
+import { type Series, seriesHref, seriesMemberCountLabel } from "@lukebrannagan/content";
+
+interface Props {
+	series: Series;
+	/** Peek titles behind the front face (work projects or writing posts). */
+	members: { title: string }[];
+	/**
+	 * When set, the stack root participates in the writing index client filter
+	 * (search, series chips, topics, pagination).
+	 */
+	writingFilter?: {
+		tags: string[];
+		/** Tags only on archived members — used when “Show archived” is on. */
+		archivedTags?: string[];
+		pubDate: Date;
+		searchText: string;
+	};
+}
+
+/**
+ * One card per side (+ optional second on the left, lower in the stack).
+ * Distinct --stack-i / --layer keeps peeks from sharing a paint layer.
+ */
+const scatter = [
+	{
+		side: "start",
+		restTx: "-32%",
+		restRot: "-9deg",
+		restTy: "-0.2rem",
+		popTx: "-82%",
+		popRot: "-11deg",
+		popTy: "-0.35rem",
+		layer: 3,
+	},
+	{
+		side: "start",
+		restTx: "-10%",
+		restRot: "-3deg",
+		restTy: "0.25rem",
+		popTx: "-48%",
+		popRot: "-4deg",
+		popTy: "0.2rem",
+		layer: 2,
+	},
+	{
+		side: "end",
+		restTx: "32%",
+		restRot: "9deg",
+		restTy: "0.1rem",
+		popTx: "82%",
+		popRot: "11deg",
+		popTy: "-0.15rem",
+		layer: 3,
+	},
+] as const;
+
+const { series, members, writingFilter } = Astro.props;
+const href = seriesHref(series);
+const countLabel = seriesMemberCountLabel(members.length, series.collection, series.layout);
+const accessibleName = `${series.title}, series, ${countLabel}`;
+const peeks = members.slice(0, 3);
+const iconName = series.collection === "writing" ? "article" : "web";
+---
+
+<li
+	class="series-stack"
+	style={`--stack-depth: ${peeks.length}`}
+	{...(writingFilter
+		? {
+				"data-writing-item": true,
+				"data-writing-kind": "series",
+				"data-title": series.title,
+				"data-description": series.summary,
+				"data-tags": writingFilter.tags.map((tag) => tag.toLowerCase()).join(","),
+				"data-archived-tags": (writingFilter.archivedTags ?? [])
+					.map((tag) => tag.toLowerCase())
+					.join(","),
+				"data-series": series.slug,
+				"data-listed": "true",
+				"data-archived": "false",
+				"data-pub-date": writingFilter.pubDate.toISOString(),
+				"data-body": writingFilter.searchText.slice(0, 1200),
+			}
+		: {})}
+>
+	<div class="series-stack__frame">
+		<div class="series-stack__deck" aria-hidden="true">
+			{
+				peeks.map((member, index) => {
+					const pose = scatter[index] ?? scatter[0];
+					return (
+						<div
+							class:list={[
+								"series-stack__card",
+								"series-stack__card--back",
+								`series-stack__card--${pose.side}`,
+							]}
+							data-series-peek={index}
+							style={`
+								--rest-tx: ${pose.restTx};
+								--rest-ty: ${pose.restTy};
+								--rest-rot: ${pose.restRot};
+								--pop-tx: ${pose.popTx};
+								--pop-ty: ${pose.popTy};
+								--pop-rot: ${pose.popRot};
+								--layer: ${pose.layer};
+								--pop-delay: ${index * 45}ms;
+							`}
+						>
+							<span class="series-stack__card-title">{member.title}</span>
+						</div>
+					);
+				})
+			}
+		</div>
+
+		<article
+			class="series-stack__card series-stack__card--front surface surface--interactive surface--series"
+		>
+			<div class="surface__row">
+				<ds-link stretch href={href}>
+					<span class="surface__icon surface__icon--series">
+						<ds-icon name={iconName}></ds-icon>
+					</span>
+					<span aria-hidden="true">{series.title}</span>
+					<span class="visually-hidden">{accessibleName}</span>
+				</ds-link>
+				<span class="surface__meta series-stack__meta">
+					<span class="series-stack__kind">Series</span>
+					<span class="series-stack__count">{countLabel}</span>
+				</span>
+			</div>
+			<ds-text variant="muted">{series.summary}</ds-text>
+		</article>
+	</div>
+</li>

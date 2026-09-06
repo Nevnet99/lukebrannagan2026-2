@@ -1,5 +1,9 @@
 ---
-import { getProject, projects } from "@lukebrannagan/content";
+import { getProject, getWorkSeriesSiblings, projects, seriesHref } from "@lukebrannagan/content";
+import RichText from "../../components/RichText.astro";
+import ScrollProgress from "../../components/ScrollProgress.astro";
+import SectionHeading from "../../components/SectionHeading.astro";
+import Toc from "../../components/Toc.astro";
 import PageLayout from "../../layouts/PageLayout.astro";
 
 export function getStaticPaths() {
@@ -14,72 +18,338 @@ const project = getProject(slug!);
 if (!project) {
 	return Astro.redirect("/work");
 }
+
+const siblings = getWorkSeriesSiblings(project.slug);
+const seriesNav = siblings
+	? {
+			series: siblings.series,
+			href: seriesHref(siblings.series),
+			prev: siblings.prev,
+			next: siblings.next,
+			label: `Part ${siblings.index + 1} of ${siblings.total}`,
+		}
+	: null;
+
+const toc = [
+	project.context ? { id: "context-heading", label: "Context" } : null,
+	{ id: "problem-heading", label: "Problem" },
+	{ id: "approach-heading", label: "Approach" },
+	project.decisions?.length ? { id: "decisions-heading", label: "Decisions" } : null,
+	project.metrics?.length ? { id: "metrics-heading", label: "Metrics" } : null,
+	{ id: "outcome-heading", label: "Outcome" },
+	project.next?.length ? { id: "next-heading", label: "Next" } : null,
+	project.links?.length || seriesNav ? { id: "links-heading", label: "Links" } : null,
+].filter((item): item is { id: string; label: string } => item != null);
 ---
 
 <PageLayout title={project.title} description={project.summary}>
-	<ds-container>
-		<article>
-			<ds-stack gap="2xl">
-				<header>
+	<ScrollProgress />
+	<ds-container class="article-layout">
+		<article class="rich-text" data-heading-permalinks data-scroll-progress-root>
+			<div class="article-body">
+				<header class="article-hero">
 					<ds-stack gap="sm">
-						<p>
-							<ds-link href="/work">← Work</ds-link>
-						</p>
+						<ds-breadcrumb
+							items={JSON.stringify(
+								seriesNav
+									? [
+											{ label: "Selected work", href: "/work" },
+											{
+												label: seriesNav.series.title,
+												href: seriesNav.href,
+											},
+											{ label: project.title },
+										]
+									: [
+											{ label: "Selected work", href: "/work" },
+											{ label: project.title },
+										],
+							)}
+						></ds-breadcrumb>
+						{
+							seriesNav && (
+								<ds-text variant="meta">{seriesNav.label}</ds-text>
+							)
+						}
 						<ds-text as="h1" variant="display">{project.title}</ds-text>
 						<ds-text variant="muted">
 							{project.role} · {project.stack.join(" · ")}
 						</ds-text>
-						<ds-text variant="body">{project.summary}</ds-text>
+						<RichText text={project.summary} />
 					</ds-stack>
 				</header>
 
-				<section aria-labelledby="problem-heading">
-					<ds-stack gap="sm">
-						<ds-text as="h2" id="problem-heading" variant="meta">Problem</ds-text>
-						<ds-text variant="body">{project.problem}</ds-text>
-					</ds-stack>
-				</section>
-
-				<section aria-labelledby="approach-heading">
-					<ds-stack gap="sm">
-						<ds-text as="h2" id="approach-heading" variant="meta">Approach</ds-text>
-						<ds-text variant="body">{project.approach}</ds-text>
-					</ds-stack>
-				</section>
-
-				<section aria-labelledby="outcome-heading">
-					<ds-stack gap="sm">
-						<ds-text as="h2" id="outcome-heading" variant="meta">Outcome</ds-text>
-						<ds-text variant="body">{project.outcome}</ds-text>
-					</ds-stack>
-				</section>
-
 				{
-					project.links && project.links.length > 0 && (
-						<section aria-labelledby="links-heading">
-							<ds-stack gap="sm">
-								<ds-text as="h2" id="links-heading" variant="meta">
-									Links
-								</ds-text>
-								<ul class="links">
-									{project.links.map((link) => (
-										<li>
-											<ds-link href={link.href} external>
-												{link.label}
-											</ds-link>
-										</li>
-									))}
-								</ul>
-							</ds-stack>
-						</section>
+					toc.length > 0 && (
+						<aside class="article-rail" aria-label="On this page">
+							<Toc items={toc} />
+						</aside>
 					)
 				}
-			</ds-stack>
+
+				<div class="article-content">
+					<ds-stack gap="2xl">
+						{
+							project.context && (
+								<section aria-labelledby="context-heading">
+									<ds-stack gap="sm">
+										<SectionHeading id="context-heading" label="Context" />
+										{project.context.map((paragraph) => (
+											<RichText text={paragraph} />
+										))}
+									</ds-stack>
+								</section>
+							)
+						}
+
+						<section aria-labelledby="problem-heading">
+							<ds-stack gap="sm">
+								<SectionHeading id="problem-heading" label="Problem" />
+								{project.problem.map((paragraph) => (
+									<RichText text={paragraph} />
+								))}
+							</ds-stack>
+						</section>
+
+						<section aria-labelledby="approach-heading">
+							<ds-stack gap="sm">
+								<SectionHeading id="approach-heading" label="Approach" />
+								{project.approach.map((paragraph) => (
+									<RichText text={paragraph} />
+								))}
+							</ds-stack>
+						</section>
+
+						{
+							project.decisions && project.decisions.length > 0 && (
+								<section aria-labelledby="decisions-heading">
+									<ds-stack gap="sm">
+										<SectionHeading id="decisions-heading" label="Decisions" />
+										<ul class="bullets">
+											{project.decisions.map((decision) => (
+												<li>
+													<RichText text={decision} />
+												</li>
+											))}
+										</ul>
+									</ds-stack>
+								</section>
+							)
+						}
+
+						{
+							project.metrics && project.metrics.length > 0 && (
+								<section aria-labelledby="metrics-heading">
+									<ds-stack gap="sm">
+										<SectionHeading id="metrics-heading" label="Metrics" />
+										<dl class="metrics">
+											{project.metrics.map((metric) => (
+												<div class="metrics__item">
+													<dt class="metrics__label">{metric.label}</dt>
+													<dd class="metrics__value">
+														<RichText text={metric.value} bare />
+													</dd>
+												</div>
+											))}
+										</dl>
+									</ds-stack>
+								</section>
+							)
+						}
+
+						<section aria-labelledby="outcome-heading">
+							<ds-stack gap="sm">
+								<SectionHeading id="outcome-heading" label="Outcome" />
+								{project.outcome.map((paragraph) => (
+									<RichText text={paragraph} />
+								))}
+							</ds-stack>
+						</section>
+
+						{
+							project.next && project.next.length > 0 && (
+								<section aria-labelledby="next-heading">
+									<ds-stack gap="sm">
+										<SectionHeading id="next-heading" label="Next" />
+										<ul class="bullets">
+											{project.next.map((item) => (
+												<li>
+													<RichText text={item} />
+												</li>
+											))}
+										</ul>
+									</ds-stack>
+								</section>
+							)
+						}
+
+						{
+							(project.links?.length || seriesNav) && (
+								<section aria-labelledby="links-heading">
+									<ds-stack gap="sm">
+										<SectionHeading id="links-heading" label="Links" />
+										<ul class="links">
+											{seriesNav && (
+												<li>
+													<ds-link href={seriesNav.href}>
+														{seriesNav.series.title} series
+													</ds-link>
+												</li>
+											)}
+											{seriesNav?.prev && (
+												<li>
+													<ds-link href={`/work/${seriesNav.prev.slug}`}>
+														Previous: {seriesNav.prev.title}
+													</ds-link>
+												</li>
+											)}
+											{seriesNav?.next && (
+												<li>
+													<ds-link href={`/work/${seriesNav.next.slug}`}>
+														Next: {seriesNav.next.title}
+													</ds-link>
+												</li>
+											)}
+											{project.links?.map((link) => (
+												<li>
+													<ds-link
+														href={link.href}
+														external={/^https?:\/\//.test(link.href)}
+													>
+														{link.label}
+													</ds-link>
+												</li>
+											))}
+										</ul>
+									</ds-stack>
+								</section>
+							)
+						}
+					</ds-stack>
+				</div>
+			</div>
 		</article>
 	</ds-container>
 </PageLayout>
 
+<script>
+	import "../../scripts/heading-permalinks";
+	import "../../scripts/scroll-progress";
+</script>
+
 <style>
+	.article-body {
+		--rail-width: 12rem;
+		--rail-gap: var(--space-xl);
+		display: grid;
+		gap: var(--space-section);
+		align-items: start;
+		grid-template-areas:
+			"hero"
+			"toc"
+			"content";
+	}
+
+	.article-hero {
+		grid-area: hero;
+		min-inline-size: 0;
+	}
+
+	.article-rail {
+		grid-area: toc;
+		min-inline-size: 0;
+	}
+
+	.article-content {
+		grid-area: content;
+		min-inline-size: 0;
+	}
+
+	/* Content stays at --page-max (nav width); TOC hangs in the left margin */
+	@media (min-width: 70rem) {
+		.article-body:has(> .article-rail) {
+			grid-template-columns: var(--rail-width) minmax(0, 1fr);
+			grid-template-areas:
+				". hero"
+				"toc content";
+			column-gap: var(--rail-gap);
+			row-gap: var(--space-section);
+			width: calc(100% + var(--rail-width) + var(--rail-gap));
+			margin-inline-start: calc(-1 * (var(--rail-width) + var(--rail-gap)));
+		}
+
+		.article-rail {
+			position: sticky;
+			top: var(--space-xl);
+			align-self: start;
+		}
+	}
+
+	/* Host carries the section id; scroll margin must live on the host */
+	.article-content :global(ds-text[id]) {
+		scroll-margin-block-start: var(--space-xl);
+	}
+
+	.bullets {
+		list-style: none;
+		padding: 0;
+		margin: 0;
+		display: flex;
+		flex-direction: column;
+		gap: var(--space-sm);
+	}
+
+	.bullets li {
+		padding-inline-start: 1.1em;
+		position: relative;
+	}
+
+	.bullets li::before {
+		content: "–";
+		position: absolute;
+		inset-inline-start: 0;
+		color: var(--color-fg-subtle);
+	}
+
+	.metrics {
+		margin: 0;
+		display: flex;
+		flex-direction: column;
+	}
+
+	.metrics__item {
+		display: flex;
+		flex-direction: column;
+		gap: var(--space-2xs);
+		padding-block: var(--space-md);
+		border-block-start: var(--rule) solid var(--color-border);
+	}
+
+	.metrics__item:first-child {
+		padding-block-start: 0;
+		border-block-start: 0;
+	}
+
+	.metrics__item:last-child {
+		padding-block-end: 0;
+	}
+
+	.metrics__label {
+		margin: 0;
+		font-family: var(--font-meta);
+		font-size: var(--font-size-xs);
+		letter-spacing: var(--letter-spacing-meta);
+		color: var(--color-fg-subtle);
+	}
+
+	.metrics__value {
+		margin: 0;
+		font-size: var(--font-size-md);
+		line-height: var(--line-height-snug);
+		color: var(--color-fg);
+		max-width: var(--measure);
+	}
+
 	.links {
 		list-style: none;
 		padding: 0;

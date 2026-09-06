@@ -1,0 +1,83 @@
+---
+import {
+	getSeries,
+	getSeriesForCollection,
+	getWorkSeriesMembers,
+	seriesMemberCountLabel,
+} from "@lukebrannagan/content";
+import RichText from "../../../components/RichText.astro";
+import PageLayout from "../../../layouts/PageLayout.astro";
+
+export function getStaticPaths() {
+	return getSeriesForCollection("work").map((series) => ({
+		params: { slug: series.slug },
+	}));
+}
+
+const { slug } = Astro.params;
+const series = getSeries(slug!, "work");
+
+if (!series) {
+	return Astro.redirect("/work");
+}
+
+const members = getWorkSeriesMembers(series);
+const countLabel = seriesMemberCountLabel(members.length, "work");
+const overview = series.body?.length ? series.body : [series.summary];
+---
+
+<PageLayout title={series.title} description={series.summary}>
+	<ds-container>
+		<ds-stack gap="2xl">
+			<header>
+				<ds-stack gap="sm">
+					<ds-breadcrumb
+						items={JSON.stringify([
+							{ label: "Selected work", href: "/work" },
+							{ label: series.title },
+						])}
+					></ds-breadcrumb>
+					<ds-text as="h1" variant="display">{series.title}</ds-text>
+					<ds-text variant="muted">Series · {countLabel}</ds-text>
+					{
+						overview.map((paragraph) => (
+							<RichText text={paragraph} />
+						))
+					}
+				</ds-stack>
+			</header>
+
+			<section aria-labelledby="series-members-heading">
+				<ds-stack gap="md">
+					<ds-text as="h2" id="series-members-heading" variant="meta">
+						In this series
+					</ds-text>
+					<ul class="surface-list">
+						{
+							members.map((project) => (
+								<li>
+									<article class="surface surface--interactive">
+										<div class="surface__row">
+											<ds-link stretch href={`/work/${project.slug}`}>
+												<span class="surface__icon">
+													<ds-icon name="web"></ds-icon>
+												</span>
+												{project.title}
+											</ds-link>
+											<span class="surface__meta surface__meta--status">
+												{project.status === "in-progress"
+													? "In progress"
+													: "Shipped"}
+											</span>
+										</div>
+										<ds-text variant="muted">{project.summary}</ds-text>
+									</article>
+								</li>
+							))
+						}
+					</ul>
+				</ds-stack>
+			</section>
+		</ds-stack>
+	</ds-container>
+</PageLayout>

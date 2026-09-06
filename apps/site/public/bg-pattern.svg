@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48" fill="none">
+	<!-- Uniform diagonal hatch — even spacing, one stroke weight -->
+	<g stroke="#fff" stroke-width="1" stroke-linecap="square">
+		<path d="M-8 16 L16 -8"/>
+		<path d="M-8 32 L32 -8"/>
+		<path d="M-8 48 L48 -8"/>
+		<path d="M8 56 L56 8"/>
+		<path d="M24 56 L56 24"/>
+		<path d="M40 56 L56 40"/>
+	</g>
+</svg>

@@ -1,13 +1,21 @@
 ---
+import { getCollection } from "astro:content";
 import {
-	featuredExperience,
-	formatTenure,
-	getFeaturedProjects,
+	getWorkSeriesMembers,
+	isWritingPubliclyLinked,
+	listFeaturedWorkEntries,
+	readingTimeLabel,
 	site,
 } from "@lukebrannagan/content";
+import SeriesStack from "../components/SeriesStack.astro";
 import PageLayout from "../layouts/PageLayout.astro";
+import { formatPostDate } from "../lib/dates";
 
-const featured = getFeaturedProjects();
+const featuredWork = listFeaturedWorkEntries();
+const recentWriting = (await getCollection("writing"))
+	.filter((post) => !post.data.archived && isWritingPubliclyLinked(post.data))
+	.sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf())
+	.slice(0, 3);
 ---
 
 <PageLayout>
@@ -22,65 +30,94 @@ const featured = getFeaturedProjects();
 			</header>
 
 			<section aria-labelledby="work-heading">
-				<ds-stack gap="lg">
-					<ds-text as="h2" id="work-heading" variant="meta">Selected work</ds-text>
-					<ul class="list">
+				<ds-stack gap="md">
+					<div class="section-head">
+						<ds-text as="h2" id="work-heading" variant="meta">Selected work</ds-text>
+						<ds-link class="section-head__link" href="/work">View all</ds-link>
+					</div>
+					<ul class="surface-list">
 						{
-							featured.map((project) => (
-								<li class="list__item">
-									<div class="list__row">
-										<ds-link href={`/work/${project.slug}`}>{project.title}</ds-link>
-										<span class="list__meta">{project.stack.join(" · ")}</span>
-									</div>
-									<ds-text variant="muted">{project.summary}</ds-text>
-								</li>
-							))
+							featuredWork.map((entry) =>
+								entry.type === "series" ? (
+									<SeriesStack
+										series={entry.series}
+										members={getWorkSeriesMembers(entry.series)}
+									/>
+								) : (
+									<li>
+										<article class="surface surface--interactive">
+											<div class="surface__row">
+												<ds-link stretch href={`/work/${entry.project.slug}`}>
+													<span class="surface__icon">
+														<ds-icon name="web"></ds-icon>
+													</span>
+													{entry.project.title}
+												</ds-link>
+												<span class="surface__meta">
+													{entry.project.stack.join(" · ")}
+												</span>
+											</div>
+											<ds-text variant="muted">{entry.project.summary}</ds-text>
+										</article>
+									</li>
+								),
+							)
 						}
 					</ul>
-					<p>
-						<ds-link href="/work">All work</ds-link>
-					</p>
-				</ds-stack>
-			</section>
-
-			<section aria-labelledby="career-heading">
-				<ds-stack gap="lg">
-					<ds-text as="h2" id="career-heading" variant="meta">Career</ds-text>
-					<ul class="list">
-						{
-							featuredExperience.map((role) => (
-								<li class="list__item">
-									<div class="list__row">
-										<span>
-											{role.role} · {role.company}
-										</span>
-										<span class="list__meta">
-											{role.period} · {formatTenure(role)}
-										</span>
-									</div>
-								</li>
-							))
-						}
-					</ul>
-					<p>
-						<ds-link href="/cv">Full CV</ds-link>
-					</p>
 				</ds-stack>
 			</section>
 
 			<section aria-labelledby="writing-heading">
-				<ds-stack gap="lg">
-					<ds-text as="h2" id="writing-heading" variant="meta">Writing</ds-text>
-					<ds-text variant="muted">Notes and essays will live here.</ds-text>
-					<p>
-						<ds-link href="/writing">All writing</ds-link>
-					</p>
+				<ds-stack gap="md">
+					<div class="section-head">
+						<ds-text as="h2" id="writing-heading" variant="meta">Writing</ds-text>
+						{
+							recentWriting.length > 0 && (
+								<ds-link class="section-head__link" href="/writing">
+									All writing
+								</ds-link>
+							)
+						}
+					</div>
+					{
+						recentWriting.length === 0 ? (
+							<ds-stack gap="md">
+								<ds-text variant="muted">{site.writing.empty}</ds-text>
+								<p>
+									<ds-link href={site.writing.emptyAction.href}>
+										{site.writing.emptyAction.label}
+									</ds-link>
+								</p>
+							</ds-stack>
+						) : (
+							<ul class="surface-list">
+								{recentWriting.map((post) => (
+									<li>
+										<article class="surface surface--interactive">
+											<div class="surface__row">
+												<ds-link stretch href={`/writing/${post.id}`}>
+													<span class="surface__icon">
+														<ds-icon name="article"></ds-icon>
+													</span>
+													{post.data.title}
+												</ds-link>
+												<span class="surface__meta">
+													{formatPostDate(post.data.pubDate)} ·{" "}
+													{readingTimeLabel(post.body ?? "")}
+												</span>
+											</div>
+											<ds-text variant="muted">{post.data.description}</ds-text>
+										</article>
+									</li>
+								))}
+							</ul>
+						)
+					}
 				</ds-stack>
 			</section>
 
 			<section aria-labelledby="contact-heading">
 				<ds-stack gap="md">
-					<ds-rule></ds-rule>
 					<ds-text as="h2" id="contact-heading" variant="meta">Contact</ds-text>
 					<ds-text variant="body">{site.cta.body}</ds-text>
 					<p>
@@ -94,36 +131,47 @@ const featured = getFeaturedProjects();
 
 <style>
 	.intro {
-		padding-top: var(--space-md);
+		padding-top: 0;
 	}
 
-	.list {
-		list-style: none;
-		padding: 0;
-		margin: 0;
+	.section-head {
 		display: flex;
-		flex-direction: column;
-		gap: var(--space-xl);
-	}
-
-	.list__item {
-		display: flex;
-		flex-direction: column;
-		gap: var(--space-xs);
-	}
-
-	.list__row {
-		display: flex;
-		flex-wrap: wrap;
+		flex-direction: row;
+		flex-wrap: nowrap;
 		align-items: baseline;
 		justify-content: space-between;
-		gap: var(--space-sm) var(--space-lg);
+		gap: var(--space-md);
 	}
 
-	.list__meta {
+	.section-head ds-text {
+		flex: 1 1 auto;
+		min-width: 0;
+		max-width: none;
+	}
+
+	/* Inline with the heading — don't let ds-link's hit-min inflate heading→content gap */
+	.section-head__link {
+		flex: 0 0 auto;
+		min-height: 0;
+		align-self: baseline;
+	}
+
+	.section-head__link::part(anchor) {
 		font-family: var(--font-meta);
 		font-size: var(--font-size-xs);
-		color: var(--color-fg-subtle);
 		letter-spacing: var(--letter-spacing-meta);
+		text-decoration: none;
+		color: var(--color-fg-subtle);
+		min-height: 0;
+	}
+
+	@media (hover: hover) {
+		.section-head__link:hover::part(anchor) {
+			color: var(--color-accent-text);
+			text-decoration: underline;
+			text-decoration-thickness: from-font;
+			text-underline-position: from-font;
+			text-underline-offset: 0.12em;
+		}
 	}
 </style>

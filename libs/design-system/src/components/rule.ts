@@ -1,5 +1,6 @@
 import { css, html, LitElement } from "lit";
 
+/** Thematic break. Native `hr` is exposed to AT as a separator. */
 export class DsRule extends LitElement {
 	static override styles = css`
 		:host {
@@ -11,6 +12,12 @@ export class DsRule extends LitElement {
 			border-top: var(--rule) solid var(--color-border);
 			margin: 0;
 			width: 100%;
+		}
+
+		@media (forced-colors: active) {
+			hr {
+				border-top-color: CanvasText;
+			}
 		}
 	`;
 

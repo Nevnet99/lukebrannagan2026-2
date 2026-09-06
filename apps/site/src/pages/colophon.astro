@@ -1,0 +1,157 @@
+---
+import { site } from "@lukebrannagan/content";
+import PageLayout from "../layouts/PageLayout.astro";
+
+const stack = [
+	"Astro 6",
+	"TypeScript",
+	"Nx",
+	"Bun",
+	"Lit",
+	"Storybook",
+	"Three.js",
+	"Biome",
+	"Vitest",
+] as const;
+---
+
+<PageLayout title="Colophon" description={site.colophon.lede}>
+	<ds-container>
+		<article class="colophon">
+			<ds-stack gap="xl">
+				<header>
+					<ds-stack gap="sm">
+						<ds-breadcrumb
+							items={JSON.stringify([
+								{ label: "Home", href: "/" },
+								{ label: "Colophon" },
+							])}
+						></ds-breadcrumb>
+						<ds-text as="h1" variant="display">Colophon</ds-text>
+						<ds-text variant="muted">{site.colophon.lede}</ds-text>
+					</ds-stack>
+				</header>
+
+				<section aria-labelledby="what-heading">
+					<ds-stack gap="sm">
+						<ds-text as="h2" id="what-heading" variant="meta">What this is</ds-text>
+						<p>
+							{site.name}’s site: selected work, writing, and a small Lit design system that
+							pages compose from. The longer write-up of why it looks like this lives in
+							{" "}
+							<ds-link href="/work/astro-portfolio">This site</ds-link>.
+						</p>
+					</ds-stack>
+				</section>
+
+				<section aria-labelledby="stack-heading">
+					<ds-stack gap="sm">
+						<ds-text as="h2" id="stack-heading" variant="meta">Stack</ds-text>
+						<p>
+							One Bun + Nx workspace. <code>apps/site</code> is the Astro app.
+							<code>libs/design-system</code> holds tokens and Lit primitives.
+							<code>libs/content</code> holds typed copy, projects, series helpers, and
+							Vitest coverage for things like reading time and topic labels.
+						</p>
+						<ul class="colophon__list">
+							{stack.map((item) => (
+								<li>{item}</li>
+							))}
+						</ul>
+						<p>
+							Source:
+							{" "}
+							<ds-link href={site.github} external>
+								github.com/{site.githubUser}
+							</ds-link>
+							.
+						</p>
+					</ds-stack>
+				</section>
+
+				<section aria-labelledby="content-heading">
+					<ds-stack gap="sm">
+						<ds-text as="h2" id="content-heading" variant="meta">Content</ds-text>
+						<p>
+							Writing is an Astro content collection. Posts carry topics, optional series
+							membership, and an archived flag. The writing index filters by search, topic,
+							series, and archived state through URL params, and announces result counts in
+							a polite live region.
+						</p>
+						<p>
+							Work case studies follow one outline: context, problem, approach, decisions,
+							metrics, outcome. Book reviews sit in a bookshelf series with optional 3D
+							covers.
+						</p>
+					</ds-stack>
+				</section>
+
+				<section aria-labelledby="feeds-heading">
+					<ds-stack gap="sm">
+						<ds-text as="h2" id="feeds-heading" variant="meta">Feeds</ds-text>
+						<ul class="colophon__list">
+							<li>
+								<ds-link href="/rss.xml">RSS</ds-link>
+								{" "}
+								for active listed writing. Archived posts stay out.
+							</li>
+							<li>
+								<ds-link href="/sitemap-index.xml">Sitemap</ds-link>
+								{" "}
+								built with the site. Linked from
+								{" "}
+								<code>robots.txt</code>
+								{" "}
+								and the document head.
+							</li>
+						</ul>
+					</ds-stack>
+				</section>
+
+				<section aria-labelledby="defaults-heading">
+					<ds-stack gap="sm">
+						<ds-text as="h2" id="defaults-heading" variant="meta">Defaults</ds-text>
+						<p>
+							Light theme first; the toggle remembers preference in
+							{" "}
+							<code>localStorage</code>
+							. Analytics stays off until you accept cookies. Focus rings, skip links, and
+							<code>prefers-reduced-motion</code>
+							{" "}
+							are part of the primitives, not bolted on later.
+						</p>
+					</ds-stack>
+				</section>
+			</ds-stack>
+		</article>
+	</ds-container>
+</PageLayout>
+
+<style>
+	.colophon {
+		max-width: var(--measure);
+	}
+
+	.colophon p {
+		margin: 0;
+		font-size: var(--font-size-md);
+		line-height: var(--line-height-relaxed);
+		color: var(--color-fg);
+	}
+
+	.colophon__list {
+		margin: 0;
+		padding-inline-start: 1.25rem;
+		display: flex;
+		flex-direction: column;
+		gap: var(--space-2xs);
+		font-size: var(--font-size-md);
+		line-height: var(--line-height-relaxed);
+		color: var(--color-fg);
+	}
+
+	.colophon code {
+		font-family: var(--font-mono);
+		font-size: 0.92em;
+	}
+</style>

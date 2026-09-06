@@ -39,20 +39,41 @@ h3,
 h4,
 h5,
 h6 {
-	overflow-wrap: pretty;
+	overflow-wrap: break-word;
+	scroll-margin-block-start: var(--space-xl);
+}
+
+h1,
+h2,
+h3 {
+	text-wrap: balance;
 }
 
 a {
 	color: inherit;
 }
 
-:focus {
+/* Kill the mouse focus ring only; keep keyboard/AT via :focus-visible */
+:focus:not(:focus-visible) {
 	outline: none;
 }
 
 :focus-visible {
 	outline: var(--focus-ring) solid var(--color-focus);
 	outline-offset: var(--focus-offset);
+}
+
+@media (forced-colors: active) {
+	:focus-visible {
+		outline: var(--focus-ring) solid Highlight;
+	}
+}
+
+/* Motion is opt-in; reduced-motion users get no transitions/animation */
+@media (prefers-reduced-motion: no-preference) {
+	html {
+		scroll-behavior: smooth;
+	}
 }
 
 @media (prefers-reduced-motion: reduce) {

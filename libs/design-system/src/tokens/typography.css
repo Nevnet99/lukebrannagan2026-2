@@ -1,21 +1,38 @@
+/**
+ * Geist + Geist Mono — role-based type scale.
+ * Sizes named by use; weights 400+ below 18px; unitless line-heights.
+ */
 :root {
-	--font-body: "IBM Plex Sans", "Helvetica Neue", Arial, sans-serif;
-	--font-meta: "IBM Plex Mono", ui-monospace, "Cascadia Code", monospace;
+	--font-body: "Geist Variable", "Geist Fallback", system-ui, sans-serif;
+	--font-meta: "Geist Mono Variable", "Geist Mono Fallback", ui-monospace, monospace;
 
-	--font-size-xs: 0.75rem;
-	--font-size-sm: 0.875rem;
-	--font-size-md: 1rem;
-	--font-size-lg: 1.125rem;
-	--font-size-xl: 1.5rem;
-	--font-size-2xl: clamp(1.75rem, 1.4rem + 1.2vw, 2.25rem);
+	/* Scale steps */
+	--font-size-xs: 0.8125rem; /* 13px — caption / meta */
+	--font-size-sm: 0.875rem; /* 14px — muted / UI */
+	--font-size-md: 1rem; /* 16px — body */
+	--font-size-lg: 1.125rem; /* 18px — heading / title */
+	--font-size-xl: 1.5rem; /* 24px */
+	--font-size-2xl: clamp(1.75rem, 1.5rem + 1vw, 2.25rem); /* display ≤36px */
 
-	--line-height-tight: 1.2;
-	--line-height-snug: 1.4;
-	--line-height-normal: 1.6;
+	/* Role aliases */
+	--text-display: var(--font-size-2xl);
+	--text-title: var(--font-size-lg);
+	--text-body: var(--font-size-md);
+	--text-muted: var(--font-size-sm);
+	--text-meta: var(--font-size-xs);
+
+	--line-height-tight: 1.1;
+	--line-height-snug: 1.3;
+	--line-height-normal: 1.5;
+	--line-height-relaxed: 1.6;
 
 	--letter-spacing-tight: -0.02em;
-	--letter-spacing-meta: 0.04em;
+	--letter-spacing-meta: 0.05em;
 
 	--font-weight-regular: 400;
 	--font-weight-medium: 500;
+	--font-weight-semibold: 600;
+
+	/* Material Symbols glyph size (override per use via --icon-size) */
+	--icon-size: 1.25rem;
 }

@@ -1,0 +1,40 @@
+---
+import { site } from "@lukebrannagan/content";
+import PageLayout from "../layouts/PageLayout.astro";
+---
+
+<PageLayout
+	title="Page not found"
+	description="That URL is not on this site."
+	noindex
+>
+	<ds-container>
+		<ds-stack gap="lg">
+			<header>
+				<ds-stack gap="sm">
+					<ds-text as="h1" variant="display">Page not found</ds-text>
+					<ds-text variant="muted">
+						Nothing here for that URL. It may have moved, or the link is wrong.
+					</ds-text>
+				</ds-stack>
+			</header>
+			<p class="not-found__actions">
+				<ds-link href="/">Home</ds-link>
+				{" · "}
+				<ds-link href="/writing">Writing</ds-link>
+				{" · "}
+				<ds-link href="/work">Selected work</ds-link>
+				{" · "}
+				<ds-link href={`mailto:${site.email}`}>Email</ds-link>
+			</p>
+		</ds-stack>
+	</ds-container>
+</PageLayout>
+
+<style>
+	.not-found__actions {
+		margin: 0;
+		font-size: var(--font-size-md);
+		line-height: var(--line-height-relaxed);
+	}
+</style>

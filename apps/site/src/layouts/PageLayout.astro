@@ -1,17 +1,36 @@
 ---
 import { site } from "@lukebrannagan/content";
+import CookieBanner from "../components/CookieBanner.astro";
 import BaseLayout from "./BaseLayout.astro";
 
 interface Props {
 	title?: string;
 	description?: string;
+	image?: string;
+	ogType?: "website" | "article";
+	noindex?: boolean;
+	jsonLd?: Record<string, unknown> | Record<string, unknown>[];
+	article?: {
+		publishedTime: Date;
+		modifiedTime?: Date;
+		tags?: string[];
+	};
 }
 
-const { title, description } = Astro.props;
+const { title, description, image, ogType, noindex, jsonLd, article } = Astro.props;
 const pathname = Astro.url.pathname;
+const copyrightYear = new Date().getFullYear();
 ---
 
-<BaseLayout title={title} description={description}>
+<BaseLayout
+	title={title}
+	description={description}
+	image={image}
+	ogType={ogType}
+	noindex={noindex}
+	jsonLd={jsonLd}
+	article={article}
+>
 	<div class="shell">
 		<header class="shell__header">
 			<ds-container>
@@ -23,7 +42,7 @@ const pathname = Astro.url.pathname;
 					>
 						{site.name}
 					</ds-link>
-					<nav id="nav" class="shell__nav" aria-label="Primary">
+					<nav id="nav" class="shell__nav" aria-label="Primary" tabindex="-1">
 						{
 							site.nav.map((item) => (
 								<ds-link
@@ -38,12 +57,13 @@ const pathname = Astro.url.pathname;
 								</ds-link>
 							))
 						}
+						<ds-theme-toggle></ds-theme-toggle>
 					</nav>
 				</div>
 			</ds-container>
 		</header>
 
-		<main id="main" class="shell__main">
+		<main id="main" class="shell__main" tabindex="-1">
 			<slot />
 		</main>
 
@@ -59,10 +79,26 @@ const pathname = Astro.url.pathname;
 							</li>
 						))
 					}
+					{
+						site.footerLegal.map((item) => (
+							<li>
+								<ds-link
+									href={item.href}
+									current={pathname === item.href ? "page" : undefined}
+								>
+									{item.label}
+								</ds-link>
+							</li>
+						))
+					}
 				</ul>
+				<p class="shell__copyright">
+					© {copyrightYear} {site.name}
+				</p>
 			</ds-container>
 		</footer>
 	</div>
+	<CookieBanner />
 </BaseLayout>
 
 <style>
@@ -73,51 +109,116 @@ const pathname = Astro.url.pathname;
 	}
 
 	.shell__header {
-		padding-block: var(--space-xl) var(--space-2xl);
+		padding-block: var(--space-lg) var(--space-md);
+		/* Hairline only — don’t compete with page surfaces */
+		box-shadow: var(--shadow-border);
+		background: color-mix(in oklch, var(--color-bg) 94%, transparent);
 	}
 
 	.shell__bar {
 		display: flex;
 		flex-wrap: wrap;
-		align-items: baseline;
+		align-items: center;
 		justify-content: space-between;
 		gap: var(--space-md);
+		/* Match hit targets so Lit upgrade does not grow the header. */
+		min-height: var(--hit-min);
 	}
 
 	.shell__brand::part(anchor) {
-		font-weight: var(--font-weight-medium);
+		font-weight: var(--font-weight-semibold);
+		color: var(--color-fg);
 		text-decoration: none;
-	}
-
-	.shell__brand:hover::part(anchor) {
-		text-decoration: underline;
-		text-underline-offset: 0.2em;
 	}
 
 	.shell__nav {
 		display: flex;
 		flex-wrap: wrap;
+		align-items: center;
 		gap: var(--space-md);
+		scroll-margin-block-start: var(--space-xl);
+	}
+
+	.shell__nav:focus {
+		outline: none;
+	}
+
+	.shell__nav:focus-visible {
+		outline: var(--focus-ring) solid var(--color-focus);
+		outline-offset: var(--focus-offset);
 	}
 
 	.shell__nav ds-link::part(anchor) {
 		text-decoration: none;
 		color: var(--color-fg-muted);
+		/* Keep weight stable — active state must not widen labels. */
+		font-weight: var(--font-weight-medium);
 	}
 
-	.shell__nav ds-link:hover::part(anchor),
+	@media (prefers-reduced-motion: no-preference) {
+		.shell__nav ds-link::part(anchor) {
+			transition-property: color;
+			transition-duration: var(--duration-fast);
+			transition-timing-function: var(--ease-out);
+		}
+
+		.shell__social ds-link::part(anchor) {
+			transition-property: color;
+			transition-duration: var(--duration-fast);
+			transition-timing-function: var(--ease-out);
+		}
+	}
+
+	@media (hover: hover) {
+		.shell__nav ds-link:hover::part(anchor) {
+			color: var(--color-accent-text);
+		}
+
+		.shell__brand:hover::part(anchor) {
+			text-decoration: underline;
+			text-decoration-thickness: from-font;
+			text-underline-position: from-font;
+			text-underline-offset: 0.12em;
+			text-decoration-skip-ink: auto;
+		}
+
+		.shell__social ds-link:hover::part(anchor) {
+			color: var(--color-fg);
+			text-decoration: underline;
+			text-decoration-thickness: from-font;
+			text-underline-position: from-font;
+			text-underline-offset: 0.12em;
+			text-decoration-skip-ink: auto;
+		}
+	}
+
 	.shell__nav ds-link[current="page"]::part(anchor) {
 		color: var(--color-fg);
+		font-weight: var(--font-weight-medium);
+	}
+
+	.shell__nav ds-theme-toggle {
+		margin-inline-start: var(--space-xs);
 	}
 
 	.shell__main {
 		flex: 1;
-		padding-bottom: var(--space-4xl);
+		padding-block-start: var(--space-2xl);
+		padding-block-end: var(--space-4xl);
+		scroll-margin-block-start: var(--space-xl);
+	}
+
+	.shell__main:focus {
+		outline: none;
+	}
+
+	.shell__main:focus-visible {
+		outline: var(--focus-ring) solid var(--color-focus);
+		outline-offset: var(--focus-offset);
 	}
 
 	.shell__footer {
 		padding-block: var(--space-2xl);
-		border-top: var(--rule) solid var(--color-border);
 	}
 
 	.shell__social {
@@ -126,6 +227,7 @@ const pathname = Astro.url.pathname;
 		margin: 0;
 		display: flex;
 		flex-wrap: wrap;
+		align-items: center;
 		gap: var(--space-md);
 	}
 
@@ -135,9 +237,12 @@ const pathname = Astro.url.pathname;
 		text-decoration: none;
 	}
 
-	.shell__social ds-link:hover::part(anchor) {
-		color: var(--color-fg);
-		text-decoration: underline;
-		text-underline-offset: 0.2em;
+	.shell__copyright {
+		margin: var(--space-md) 0 0;
+		font-family: var(--font-meta);
+		font-size: var(--font-size-xs);
+		letter-spacing: var(--letter-spacing-meta);
+		line-height: var(--line-height-snug);
+		color: var(--color-fg-subtle);
 	}
 </style>

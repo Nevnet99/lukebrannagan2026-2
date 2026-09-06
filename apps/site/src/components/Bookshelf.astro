@@ -1,0 +1,284 @@
+---
+import type { CollectionEntry } from "astro:content";
+import StarRating from "./StarRating.astro";
+
+interface Props {
+	books: CollectionEntry<"writing">[];
+}
+
+type ShelfBook = {
+	book: CollectionEntry<"writing">;
+	rating: number;
+	pending: boolean;
+	author: string;
+	accessibleName: string;
+};
+
+const { books } = Astro.props;
+
+function toShelfBook(book: CollectionEntry<"writing">): ShelfBook {
+	const rating = book.data.rating ?? 1;
+	const pending = book.data.reviewStatus === "to-be-reviewed";
+	const author = book.data.bookAuthor ?? "";
+	return {
+		book,
+		rating,
+		pending,
+		author,
+		accessibleName: [
+			book.data.title,
+			author ? `by ${author}` : null,
+			`Rated ${rating} out of 5`,
+			pending ? "To be reviewed" : null,
+		]
+			.filter(Boolean)
+			.join(". "),
+	};
+}
+
+const allItems = books.map((book) => toShelfBook(book));
+
+const books3d = allItems.map((item) => ({
+	id: item.book.id,
+	title: item.book.data.title,
+	author: item.author,
+	href: `/writing/${item.book.id}`,
+	cover: item.book.data.cover,
+}));
+---
+
+<section class="bookshelf" aria-labelledby="bookshelf-heading">
+	<ds-stack gap="md">
+		<ds-text as="h2" id="bookshelf-heading" variant="meta">On the shelf</ds-text>
+		<p class="bookshelf__hint bookshelf__hint--mobile">
+			<ds-text variant="muted">Pick a book to open the review.</ds-text>
+		</p>
+		<p class="bookshelf__hint bookshelf__hint--desktop">
+			<ds-text variant="muted">
+				Hover a book to pull it out and see the cover. Click to open the review.
+			</ds-text>
+		</p>
+
+		<ul class="bookshelf__list">
+			{
+				allItems.map((item) => (
+					<li class="bookshelf__list-item">
+						<article class="surface surface--interactive">
+							<div class="surface__row bookshelf__list-row">
+								<ds-link stretch href={`/writing/${item.book.id}`}>
+									<span class="bookshelf__list-link">
+										{item.book.data.cover ? (
+											<img
+												class="bookshelf__list-cover"
+												src={item.book.data.cover}
+												alt=""
+												width="56"
+												height="84"
+												loading="lazy"
+												decoding="async"
+											/>
+										) : (
+											<span
+												class="bookshelf__list-cover bookshelf__list-cover--empty"
+												aria-hidden="true"
+											/>
+										)}
+										<span class="bookshelf__list-copy">
+											<span class="bookshelf__list-title">{item.book.data.title}</span>
+											{item.author && (
+												<span class="bookshelf__list-author">{item.author}</span>
+											)}
+											<span class="bookshelf__list-meta">
+												<StarRating rating={item.rating} size="sm" />
+												{item.pending && (
+													<span class="bookshelf__status">To be reviewed</span>
+												)}
+											</span>
+										</span>
+									</span>
+								</ds-link>
+							</div>
+						</article>
+					</li>
+				))
+			}
+		</ul>
+
+		<div
+			class="bookshelf__stage"
+			data-bookshelf-3d
+			data-books={JSON.stringify(books3d)}
+		>
+			<canvas class="bookshelf__canvas" aria-hidden="true"></canvas>
+			<ul class="visually-hidden">
+				{
+					allItems.map((item) => (
+						<li>
+							<a href={`/writing/${item.book.id}`}>{item.accessibleName}</a>
+						</li>
+					))
+				}
+			</ul>
+		</div>
+	</ds-stack>
+</section>
+
+<script>
+	import { mountBookshelf3D } from "../scripts/bookshelf-3d";
+
+	if (typeof document !== "undefined") {
+		if (document.readyState === "loading") {
+			document.addEventListener("DOMContentLoaded", () => mountBookshelf3D(), {
+				once: true,
+			});
+		} else {
+			mountBookshelf3D();
+		}
+	}
+</script>
+
+<style>
+	.bookshelf__hint {
+		margin: 0;
+	}
+
+	.bookshelf__hint :global(ds-text) {
+		max-width: none;
+	}
+
+	.bookshelf__hint--desktop {
+		display: none;
+	}
+
+	.bookshelf__list {
+		list-style: none;
+		margin: 0;
+		padding: 0;
+		display: flex;
+		flex-direction: column;
+		gap: var(--space-xs);
+	}
+
+	.bookshelf__list-item {
+		margin: 0;
+		padding: 0;
+	}
+
+	.bookshelf__list-row {
+		flex-wrap: nowrap;
+		align-items: stretch;
+		width: 100%;
+	}
+
+	.bookshelf__list-row :global(ds-link[stretch]) {
+		flex: 1 1 auto;
+		min-inline-size: 0;
+	}
+
+	.bookshelf__list-row :global(ds-link[stretch]::part(anchor)) {
+		color: inherit;
+		text-decoration: none;
+		width: 100%;
+	}
+
+	.bookshelf__list-link {
+		display: flex;
+		align-items: center;
+		gap: var(--space-md);
+		padding: var(--space-sm) var(--space-md);
+		color: inherit;
+		min-block-size: var(--hit-comfortable, 2.75rem);
+	}
+
+	.bookshelf__list-cover {
+		flex: 0 0 auto;
+		inline-size: 2.75rem;
+		block-size: auto;
+		aspect-ratio: 2 / 3;
+		object-fit: cover;
+		border-radius: 0.15rem;
+		box-shadow: var(--shadow-sm);
+		background: var(--color-bg-subtle);
+	}
+
+	.bookshelf__list-cover--empty {
+		display: block;
+		background: var(--color-border);
+	}
+
+	.bookshelf__list-copy {
+		display: flex;
+		flex-direction: column;
+		gap: var(--space-2xs);
+		min-inline-size: 0;
+	}
+
+	.bookshelf__list-title {
+		font-family: var(--font-body);
+		font-size: var(--font-size-sm);
+		font-weight: var(--font-weight-semibold);
+		line-height: var(--line-height-snug);
+		color: var(--color-fg);
+	}
+
+	.bookshelf__list-author {
+		font-family: var(--font-meta);
+		font-size: var(--font-size-xs);
+		letter-spacing: var(--letter-spacing-meta);
+		color: var(--color-fg-muted);
+	}
+
+	.bookshelf__list-meta {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		gap: var(--space-xs);
+	}
+
+	.bookshelf__status {
+		font-family: var(--font-meta);
+		font-size: var(--font-size-xs);
+		letter-spacing: var(--letter-spacing-meta);
+		text-transform: uppercase;
+		color: var(--color-fg-subtle);
+	}
+
+	.bookshelf__stage {
+		display: none;
+		position: relative;
+		/* Break out of the page gutter so the case can breathe */
+		inline-size: 100vw;
+		max-inline-size: 100vw;
+		margin-inline: calc(50% - 50vw);
+		block-size: clamp(42rem, 88vw, 58rem);
+		border-radius: 0;
+		overflow: visible;
+		background: transparent;
+	}
+
+	.bookshelf__canvas {
+		display: block;
+		inline-size: 100%;
+		block-size: 100%;
+		touch-action: none;
+		background: transparent;
+	}
+
+	@media (min-width: 40rem) {
+		.bookshelf__hint--mobile {
+			display: none;
+		}
+
+		.bookshelf__hint--desktop {
+			display: block;
+		}
+
+		.bookshelf__list {
+			display: none;
+		}
+
+		.bookshelf__stage {
+			display: block;
+		}
+	}
+</style>

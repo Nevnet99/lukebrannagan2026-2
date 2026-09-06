@@ -1,66 +1,83 @@
 ---
-import { projects } from "@lukebrannagan/content";
+import { getWorkSeriesMembers, listWorkIndexEntries } from "@lukebrannagan/content";
+import Pagination from "../../components/Pagination.astro";
+import SeriesStack from "../../components/SeriesStack.astro";
 import PageLayout from "../../layouts/PageLayout.astro";
+import { clampPage, PAGE_SIZE, pageCount, paginationEnabled } from "../../lib/pagination";
+
+const entries = listWorkIndexEntries();
+const enabled = paginationEnabled(entries.length);
+const totalPages = pageCount(entries.length);
+const requested = Number(Astro.url.searchParams.get("page") ?? "1");
+const currentPage = enabled ? clampPage(requested, totalPages) : 1;
+const pageEntries = enabled
+	? entries.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE)
+	: entries;
+
+const prevHref =
+	enabled && currentPage > 1
+		? currentPage === 2
+			? "/work"
+			: `/work?page=${currentPage - 1}`
+		: null;
+const nextHref = enabled && currentPage < totalPages ? `/work?page=${currentPage + 1}` : null;
 ---
 
-<PageLayout title="Work" description="Selected projects and case studies.">
+<PageLayout
+	title="Selected work"
+	description="Case studies from Kroo and Primer, plus how this site is built."
+>
 	<ds-container>
 		<ds-stack gap="2xl">
 			<header>
 				<ds-stack gap="sm">
-					<ds-text as="h1" variant="display">Work</ds-text>
-					<ds-text variant="muted">Selected projects and case studies.</ds-text>
+					<ds-text as="h1" variant="display">Selected work</ds-text>
+					<ds-text variant="muted">
+						Case studies from Kroo and Primer, plus how this site is built.
+					</ds-text>
 				</ds-stack>
 			</header>
 
-			<ul class="list">
+			<ul class="surface-list">
 				{
-					projects.map((project) => (
-						<li class="list__item">
-							<div class="list__row">
-								<ds-link href={`/work/${project.slug}`}>{project.title}</ds-link>
-								<span class="list__meta">
-									{project.status === "in-progress" ? "In progress" : "Shipped"}
-								</span>
-							</div>
-							<ds-text variant="muted">{project.summary}</ds-text>
-						</li>
-					))
+					pageEntries.map((entry) =>
+						entry.type === "series" ? (
+							<SeriesStack
+								series={entry.series}
+								members={getWorkSeriesMembers(entry.series)}
+							/>
+						) : (
+							<li>
+								<article class="surface surface--interactive">
+									<div class="surface__row">
+										<ds-link stretch href={`/work/${entry.project.slug}`}>
+											<span class="surface__icon">
+												<ds-icon name="web"></ds-icon>
+											</span>
+											{entry.project.title}
+										</ds-link>
+										<span class="surface__meta surface__meta--status">
+											{entry.project.status === "in-progress"
+												? "In progress"
+												: "Shipped"}
+										</span>
+									</div>
+									<ds-text variant="muted">{entry.project.summary}</ds-text>
+								</article>
+							</li>
+						),
+					)
 				}
 			</ul>
+
+			<Pagination
+				label="Selected work pages"
+				currentPage={currentPage}
+				totalPages={totalPages}
+				enabled={enabled}
+				prevHref={prevHref}
+				nextHref={nextHref}
+			/>
 		</ds-stack>
 	</ds-container>
 </PageLayout>
-
-<style>
-	.list {
-		list-style: none;
-		padding: 0;
-		margin: 0;
-		display: flex;
-		flex-direction: column;
-		gap: var(--space-xl);
-	}
-
-	.list__item {
-		display: flex;
-		flex-direction: column;
-		gap: var(--space-xs);
-	}
-
-	.list__row {
-		display: flex;
-		flex-wrap: wrap;
-		align-items: baseline;
-		justify-content: space-between;
-		gap: var(--space-sm) var(--space-lg);
-	}
-
-	.list__meta {
-		font-family: var(--font-meta);
-		font-size: var(--font-size-xs);
-		color: var(--color-fg-subtle);
-		letter-spacing: var(--letter-spacing-meta);
-		text-transform: uppercase;
-	}
-</style>

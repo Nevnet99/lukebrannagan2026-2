@@ -1,0 +1,47 @@
+/**
+ * Site atmosphere — mist hatch wash behind content.
+ * Uniform diagonal tile; white marks for luminance masks.
+ */
+
+html {
+	background-color: var(--color-bg);
+}
+
+html::before {
+	content: "";
+	position: fixed;
+	inset: 0;
+	z-index: 0;
+	pointer-events: none;
+	background-color: var(--mist-600);
+	opacity: 0.12;
+	-webkit-mask-image: url("/bg-pattern.svg");
+	mask-image: url("/bg-pattern.svg");
+	-webkit-mask-repeat: repeat;
+	mask-repeat: repeat;
+	-webkit-mask-size: 3rem 3rem;
+	mask-size: 3rem 3rem;
+	-webkit-mask-mode: luminance;
+	mask-mode: luminance;
+}
+
+body {
+	position: relative;
+	z-index: 1;
+	background-color: transparent;
+}
+
+:root[data-theme="dark"] html::before {
+	background-color: var(--mist-300);
+	opacity: 0.1;
+}
+
+@media (forced-colors: active) {
+	html::before {
+		display: none;
+	}
+
+	body {
+		background-color: var(--color-bg);
+	}
+}

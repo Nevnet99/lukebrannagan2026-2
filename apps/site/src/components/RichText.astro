@@ -1,0 +1,32 @@
+---
+import type { TextTag, TextVariant } from "@lukebrannagan/design-system";
+import { splitInlineCode } from "../lib/inline-code";
+
+interface Props {
+	text: string;
+	variant?: TextVariant;
+	as?: TextTag;
+	id?: string;
+	/** Render fragments only (no ds-text wrapper). */
+	bare?: boolean;
+}
+
+const { text, variant = "body", as, id, bare = false } = Astro.props as Props;
+const parts = splitInlineCode(text);
+---
+
+{
+	bare ? (
+		<>
+			{parts.map((part) =>
+				part.type === "code" ? <code>{part.value}</code> : part.value,
+			)}
+		</>
+	) : (
+		<ds-text variant={variant} as={as} id={id}>
+			{parts.map((part) =>
+				part.type === "code" ? <code>{part.value}</code> : part.value,
+			)}
+		</ds-text>
+	)
+}

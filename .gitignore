@@ -4,6 +4,7 @@
 dist
 tmp
 out-tsc
+storybook-static
 
 # dependencies
 node_modules
@@ -34,6 +35,12 @@ yarn-error.log
 testem.log
 /typings
 
+# env — keep secrets local; never ship .env in dist or git
+.env
+.env.local
+.env.*.local
+!.env.example
+
 # System Files
 .DS_Store
 Thumbs.db
@@ -43,3 +50,4 @@ Thumbs.db
 .nx/migrate-runs
 .claude/worktrees
 .claude/settings.local.json
+.cursor/

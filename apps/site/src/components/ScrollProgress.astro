@@ -1,0 +1,92 @@
+---
+/**
+ * Fixed reading progress for writing and work articles.
+ * Pair with `data-scroll-progress-root` on the article and `scroll-progress.ts`.
+ */
+---
+
+<div
+	class="scroll-progress"
+	data-scroll-progress
+	role="progressbar"
+	aria-label="Reading progress"
+	aria-valuemin="0"
+	aria-valuemax="100"
+	aria-valuenow="0"
+>
+	<div class="scroll-progress__track" aria-hidden="true">
+		<div class="scroll-progress__bar" data-scroll-progress-bar></div>
+	</div>
+</div>
+
+<style>
+	.scroll-progress {
+		--scroll-progress: 0;
+		position: fixed;
+		z-index: 50;
+		inset-block-start: 0;
+		inset-inline: 0;
+		pointer-events: none;
+		opacity: 0;
+		translate: 0 -100%;
+	}
+
+	.scroll-progress.is-active {
+		opacity: 1;
+		translate: 0 0;
+	}
+
+	.scroll-progress__track {
+		block-size: 0.2rem;
+		background: color-mix(in oklch, var(--color-border) 70%, transparent);
+	}
+
+	.scroll-progress__bar {
+		block-size: 100%;
+		inline-size: 100%;
+		transform: scaleX(0);
+		transform-origin: 0 50%;
+		background: var(--color-accent);
+		will-change: transform;
+	}
+
+	:global([dir="rtl"]) .scroll-progress__bar {
+		transform-origin: 100% 50%;
+	}
+
+	@media (prefers-reduced-motion: no-preference) {
+		.scroll-progress {
+			transition-property: opacity, translate;
+			transition-duration: var(--duration-fast);
+			transition-timing-function: var(--ease-out);
+		}
+
+		.scroll-progress.is-just-complete .scroll-progress__bar {
+			animation: scroll-progress-complete var(--duration-enter) var(--ease-out);
+		}
+	}
+
+	@keyframes scroll-progress-complete {
+		0% {
+			filter: brightness(1);
+		}
+		40% {
+			filter: brightness(1.35);
+		}
+		100% {
+			filter: brightness(1);
+		}
+	}
+
+	@media (forced-colors: active) {
+		.scroll-progress__track {
+			background: CanvasText;
+			opacity: 0.25;
+		}
+
+		.scroll-progress__bar {
+			background: Highlight;
+			forced-color-adjust: none;
+		}
+	}
+</style>

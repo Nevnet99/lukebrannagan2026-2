@@ -1,10 +1,10 @@
 {
 	"extends": "../../tsconfig.base.json",
-	"include": ["src/**/*.ts"],
+	"include": ["src/**/*.ts", ".storybook/**/*.ts"],
 	"exclude": ["src/**/*.test.ts"],
 	"compilerOptions": {
 		"outDir": "../../dist/libs/design-system",
-		"rootDir": "src",
+		"rootDir": ".",
 		"types": ["vite/client"]
 	}
 }

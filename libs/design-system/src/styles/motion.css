@@ -1,0 +1,28 @@
+/**
+ * Shared keyframe recipes — use with motion tokens.
+ * Call sites opt in under `prefers-reduced-motion: no-preference`.
+ */
+
+@keyframes ds-enter {
+	from {
+		opacity: 0;
+		transform: translateY(var(--enter-distance));
+		filter: blur(var(--enter-blur));
+	}
+
+	to {
+		opacity: 1;
+		transform: translateY(0);
+		filter: blur(0);
+	}
+}
+
+@keyframes ds-fade-in {
+	from {
+		opacity: 0;
+	}
+
+	to {
+		opacity: 1;
+	}
+}

@@ -1,0 +1,107 @@
+---
+import { getCollection } from "astro:content";
+import {
+	getSeries,
+	getSeriesForCollection,
+	isWritingPubliclyLinked,
+	seriesMemberCountLabel,
+} from "@lukebrannagan/content";
+import Bookshelf from "../../../components/Bookshelf.astro";
+import RichText from "../../../components/RichText.astro";
+import PageLayout from "../../../layouts/PageLayout.astro";
+
+export async function getStaticPaths() {
+	const allWriting = await getCollection("writing");
+	const byId = new Map(allWriting.map((post) => [post.id, post]));
+
+	return getSeriesForCollection("writing")
+		.filter((series) =>
+			series.memberSlugs.some((id) => {
+				const post = byId.get(id);
+				return post != null && isWritingPubliclyLinked(post.data);
+			}),
+		)
+		.map((series) => ({
+			params: { slug: series.slug },
+		}));
+}
+
+const { slug } = Astro.params;
+const series = getSeries(slug!, "writing");
+
+if (!series) {
+	return Astro.redirect("/writing");
+}
+
+const allWriting = await getCollection("writing");
+const byId = new Map(allWriting.map((post) => [post.id, post]));
+const members = series.memberSlugs
+	.map((id) => byId.get(id))
+	.filter(
+		(post): post is (typeof allWriting)[number] =>
+			post != null && isWritingPubliclyLinked(post.data),
+	);
+
+if (members.length === 0) {
+	return Astro.redirect("/writing");
+}
+
+const countLabel = seriesMemberCountLabel(members.length, "writing", series.layout);
+const overview = series.body?.length ? series.body : [series.summary];
+const isBookshelf = series.layout === "bookshelf";
+---
+
+<PageLayout title={series.title} description={series.summary}>
+	<ds-container>
+		<ds-stack gap="2xl">
+			<header>
+				<ds-stack gap="sm">
+					<ds-breadcrumb
+						items={JSON.stringify([
+							{ label: "Writing", href: "/writing" },
+							{ label: series.title },
+						])}
+					></ds-breadcrumb>
+					<ds-text as="h1" variant="display">{series.title}</ds-text>
+					<ds-text variant="muted">Series · {countLabel}</ds-text>
+					{
+						overview.map((paragraph) => (
+							<RichText text={paragraph} />
+						))
+					}
+				</ds-stack>
+			</header>
+
+			{
+				isBookshelf ? (
+					<Bookshelf books={members} />
+				) : (
+					<section aria-labelledby="series-members-heading">
+						<ds-stack gap="md">
+							<ds-text as="h2" id="series-members-heading" variant="meta">
+								In this series
+							</ds-text>
+							<ul class="surface-list">
+								{members.map((post) => (
+									<li>
+										<article class="surface surface--interactive">
+											<div class="surface__row">
+												<ds-link stretch href={`/writing/${post.id}`}>
+													<span class="surface__icon">
+														<ds-icon name="article"></ds-icon>
+													</span>
+													{post.data.title}
+												</ds-link>
+											</div>
+											<ds-text variant="muted">{post.data.description}</ds-text>
+										</article>
+									</li>
+								))}
+							</ul>
+						</ds-stack>
+					</section>
+				)
+			}
+		</ds-stack>
+	</ds-container>
+</PageLayout>

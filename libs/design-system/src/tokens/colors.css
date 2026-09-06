@@ -1,23 +1,114 @@
 /**
- * Ultra-minimal palette — paper, ink, quiet mute.
- * Primitives stay in tokens; components use semantics only.
+ * Pastel system — Mist (cool neutral) + Tide (soft teal accent).
+ * Primitives never used in components; semantics only.
+ * Theme via `data-theme="light" | "dark"` on <html>.
+ *
+ * Generated with culori in oklch; contrast checked with WCAG 2.
+ * See scripts/generate-pastel-palette.mjs to regenerate / remeasure.
  */
+
 :root {
-	--paper-50: #fafafa;
-	--paper-100: #f4f4f5;
-	--paper-200: #e4e4e7;
+	/* ——— Mist: cool, near-neutral, barely blue (hue 250) ——— */
+	--mist-50: oklch(0.975 0.002 250);
+	--mist-100: oklch(0.95 0.004 250);
+	--mist-200: oklch(0.9 0.007 250);
+	--mist-300: oklch(0.82 0.01 250);
+	--mist-400: oklch(0.72 0.014 250);
+	--mist-500: oklch(0.62 0.018 250);
+	--mist-600: oklch(0.52 0.016 250);
+	--mist-700: oklch(0.42 0.013 250);
+	--mist-800: oklch(0.32 0.008 250);
+	--mist-900: oklch(0.24 0.005 250);
+	--mist-950: oklch(0.17 0.003 250);
 
-	--ink-950: #0a0a0a;
-	--ink-800: #27272a;
-	--ink-600: #52525b;
-	--ink-400: #a1a1aa;
+	/* ——— Tide: soft teal (hue 195), pastel mid, quiet ends ——— */
+	--tide-50: oklch(0.975 0.01 195);
+	--tide-100: oklch(0.95 0.018 195);
+	--tide-200: oklch(0.9 0.032 195);
+	--tide-300: oklch(0.82 0.045 195);
+	--tide-400: oklch(0.72 0.06 195);
+	--tide-500: oklch(0.62 0.078 195);
+	--tide-600: oklch(0.52 0.07 195);
+	--tide-700: oklch(0.42 0.055 195);
+	--tide-800: oklch(0.32 0.035 195);
+	--tide-900: oklch(0.24 0.022 195);
+	--tide-950: oklch(0.17 0.012 195);
 
-	--color-bg: var(--paper-50);
-	--color-bg-subtle: var(--paper-100);
-	--color-fg: var(--ink-950);
-	--color-fg-muted: var(--ink-600);
-	--color-fg-subtle: var(--ink-400);
-	--color-border: var(--paper-200);
-	--color-focus: var(--ink-800);
-	--color-selection-bg: color-mix(in srgb, var(--ink-950) 12%, transparent);
+	color-scheme: light;
+
+	/* Surfaces */
+	--color-bg: var(--mist-50);
+	--color-bg-subtle: var(--mist-100);
+	--color-bg-surface: var(--mist-50);
+	--color-bg-surface-hover: var(--mist-100);
+
+	/* Text */
+	--color-fg: var(--mist-950);
+	--color-fg-muted: var(--mist-700);
+	--color-fg-subtle: var(--mist-600);
+	--color-text-on-accent: var(--mist-50);
+
+	/* Borders */
+	--color-border: var(--mist-200);
+	--color-border-strong: var(--mist-500);
+	--color-focus: var(--tide-600);
+
+	/* Accent */
+	--color-accent: var(--tide-600);
+	--color-accent-hover: var(--tide-700);
+	--color-accent-text: var(--tide-700);
+	--color-accent-subtle: var(--tide-100);
+
+	--color-selection-bg: color-mix(in oklch, var(--tide-400) 28%, transparent);
+}
+
+:root[data-theme="light"] {
+	color-scheme: light;
+
+	--color-bg: var(--mist-50);
+	--color-bg-subtle: var(--mist-100);
+	--color-bg-surface: var(--mist-50);
+	--color-bg-surface-hover: var(--mist-100);
+
+	--color-fg: var(--mist-950);
+	--color-fg-muted: var(--mist-700);
+	--color-fg-subtle: var(--mist-600);
+	--color-text-on-accent: var(--mist-50);
+
+	--color-border: var(--mist-200);
+	--color-border-strong: var(--mist-500);
+	--color-focus: var(--tide-600);
+
+	--color-accent: var(--tide-600);
+	--color-accent-hover: var(--tide-700);
+	--color-accent-text: var(--tide-700);
+	--color-accent-subtle: var(--tide-100);
+
+	--color-selection-bg: color-mix(in oklch, var(--tide-400) 28%, transparent);
+}
+
+:root[data-theme="dark"] {
+	color-scheme: dark;
+
+	/* Dark: reverse roles, pull accent vividness down (lighter pastel steps) */
+	--color-bg: var(--mist-950);
+	--color-bg-subtle: var(--mist-900);
+	--color-bg-surface: var(--mist-900);
+	--color-bg-surface-hover: var(--mist-800);
+
+	--color-fg: var(--mist-50);
+	--color-fg-muted: var(--mist-400);
+	--color-fg-subtle: var(--mist-500);
+	--color-text-on-accent: var(--mist-950);
+
+	--color-border: var(--mist-800);
+	--color-border-strong: var(--mist-600);
+	--color-focus: var(--tide-400);
+
+	--color-accent: var(--tide-400);
+	--color-accent-hover: var(--tide-300);
+	--color-accent-text: var(--tide-300);
+	--color-accent-subtle: color-mix(in oklch, var(--tide-800) 55%, var(--mist-950));
+
+	--color-selection-bg: color-mix(in oklch, var(--tide-400) 32%, transparent);
 }

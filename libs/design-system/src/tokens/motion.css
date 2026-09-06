@@ -1,0 +1,37 @@
+/**
+ * Motion tokens — durations, curves, and spatial constants.
+ * All motion is opt-in via `@media (prefers-reduced-motion: no-preference)`.
+ *
+ * Curves:
+ *   --ease-out         Default interactive (color, opacity) — better-ui
+ *   --ease-emphasized  Soft settle for lift / elevation changes
+ *   --ease-enter       Page / staged entrances (long decelerate)
+ *   --ease-exit        Soft exits
+ */
+:root {
+	/* Durations */
+	--duration-instant: 100ms;
+	--duration-fast: 150ms;
+	--duration-moderate: 280ms;
+	--duration-enter: 620ms;
+	--duration-exit: 200ms;
+	--stagger: 120ms;
+
+	/* Curves */
+	--ease-out: cubic-bezier(0.2, 0, 0, 1);
+	--ease-emphasized: cubic-bezier(0.16, 1, 0.3, 1);
+	--ease-enter: cubic-bezier(0.22, 1, 0.36, 1);
+	--ease-exit: cubic-bezier(0.4, 0, 1, 1);
+
+	/* Enter / icon */
+	--enter-distance: 14px;
+	--enter-blur: 5px;
+	--press-scale: 0.96;
+	--icon-enter-scale: 0.25;
+
+	/* Surface lift (hover elevation) */
+	--lift-distance: 0.125rem;
+	--lift-scale: 1.01;
+	--duration-lift: var(--duration-moderate);
+	--ease-lift: var(--ease-emphasized);
+}

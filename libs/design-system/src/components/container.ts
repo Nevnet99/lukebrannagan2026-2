@@ -4,7 +4,9 @@ export class DsContainer extends LitElement {
 	static override styles = css`
 		:host {
 			display: block;
-			width: min(100% - (var(--page-gutter) * 2), var(--page-max));
+			box-sizing: border-box;
+			width: min(100%, var(--page-max));
+			padding-inline: var(--page-gutter);
 			margin-inline: auto;
 		}
 	`;

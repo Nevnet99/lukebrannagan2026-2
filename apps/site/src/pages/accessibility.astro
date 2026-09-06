@@ -1,0 +1,161 @@
+---
+import { site } from "@lukebrannagan/content";
+import PageLayout from "../layouts/PageLayout.astro";
+
+const updated = "6 September 2026";
+---
+
+<PageLayout title="Accessibility" description={site.accessibility.lede}>
+	<ds-container>
+		<article class="statement">
+			<ds-stack gap="xl">
+				<header>
+					<ds-stack gap="sm">
+						<ds-breadcrumb
+							items={JSON.stringify([
+								{ label: "Home", href: "/" },
+								{ label: "Accessibility" },
+							])}
+						></ds-breadcrumb>
+						<ds-text as="h1" variant="display">Accessibility</ds-text>
+						<ds-text variant="muted">
+							{site.accessibility.lede} Last reviewed {updated}.
+						</ds-text>
+					</ds-stack>
+				</header>
+
+				<section aria-labelledby="aim-heading">
+					<ds-stack gap="sm">
+						<ds-text as="h2" id="aim-heading" variant="meta">Aim</ds-text>
+						<p>
+							I build this site to work with keyboard, screen readers, and
+							{" "}
+							<code>prefers-reduced-motion</code>
+							. The target is
+							{" "}
+							<ds-link href="https://www.w3.org/TR/WCAG22/" external>
+								WCAG 2.2 Level AA
+							</ds-link>
+							. I have not commissioned a formal audit, so this is not a claim of full
+							conformance.
+						</p>
+					</ds-stack>
+				</section>
+
+				<section aria-labelledby="works-heading">
+					<ds-stack gap="sm">
+						<ds-text as="h2" id="works-heading" variant="meta">What is in place</ds-text>
+						<ul class="statement__list">
+							<li>
+								Skip links to main content and primary nav on every page.
+							</li>
+							<li>
+								Visible focus styles on interactive controls; hit targets sized for
+								pointer and keyboard use.
+							</li>
+							<li>
+								Native buttons, links, checkboxes, and search fields for filters and
+								chrome. Pressed topic and series chips use
+								{" "}
+								<code>aria-pressed</code>
+								.
+							</li>
+							<li>
+								Writing filter results announce count changes in a polite live region.
+							</li>
+							<li>
+								Motion (card lift, page enter, bookshelf hover) respects
+								{" "}
+								<code>prefers-reduced-motion</code>
+								.
+							</li>
+							<li>
+								Storybook includes the a11y addon for design-system and site shell
+								stories.
+							</li>
+						</ul>
+					</ds-stack>
+				</section>
+
+				<section aria-labelledby="gaps-heading">
+					<ds-stack gap="sm">
+						<ds-text as="h2" id="gaps-heading" variant="meta">Known limits</ds-text>
+						<ul class="statement__list">
+							<li>
+								When the book-reviews shelf is published on wide viewports, it uses a
+								Three.js canvas. The canvas is decorative for assistive tech; a visually
+								hidden link list carries the same destinations. Narrow viewports use a
+								plain list instead. Hover-to-pull interaction is mouse-oriented.
+							</li>
+							<li>
+								Individual book pages can show a 3D cover viewer. Title, author, rating,
+								and the review text remain available without that viewer.
+							</li>
+							<li>
+								Some older writing was imported from elsewhere. Structure and alt text
+								may be thinner on those posts than on newer ones.
+							</li>
+							<li>
+								Third-party destinations (GitHub, LinkedIn, Amazon affiliate links) follow
+								their own accessibility practices, not mine.
+							</li>
+						</ul>
+					</ds-stack>
+				</section>
+
+				<section aria-labelledby="test-heading">
+					<ds-stack gap="sm">
+						<ds-text as="h2" id="test-heading" variant="meta">How I check</ds-text>
+						<p>
+							Keyboard passes on new pages and filters. Spot checks with VoiceOver on
+							macOS. Automated checks in Storybook and during local builds. That is a
+							maintenance habit, not a full WCAG evaluation.
+						</p>
+					</ds-stack>
+				</section>
+
+				<section aria-labelledby="report-heading">
+					<ds-stack gap="sm">
+						<ds-text as="h2" id="report-heading" variant="meta">Tell me what breaks</ds-text>
+						<p>
+							If something is hard to use, email
+							{" "}
+							<ds-link href={`mailto:${site.email}`}>{site.email}</ds-link>
+							. Include the page URL, what you were trying to do, and the browser or
+							assistive tech if you know it. I will reply and fix what I can.
+						</p>
+					</ds-stack>
+				</section>
+			</ds-stack>
+		</article>
+	</ds-container>
+</PageLayout>
+
+<style>
+	.statement {
+		max-width: var(--measure);
+	}
+
+	.statement p {
+		margin: 0;
+		font-size: var(--font-size-md);
+		line-height: var(--line-height-relaxed);
+		color: var(--color-fg);
+	}
+
+	.statement__list {
+		margin: 0;
+		padding-inline-start: 1.25rem;
+		display: flex;
+		flex-direction: column;
+		gap: var(--space-sm);
+		font-size: var(--font-size-md);
+		line-height: var(--line-height-relaxed);
+		color: var(--color-fg);
+	}
+
+	.statement code {
+		font-family: var(--font-mono);
+		font-size: 0.92em;
+	}
+</style>

@@ -1,0 +1,103 @@
+---
+interface Props {
+	title: string;
+	author?: string;
+	cover?: string | null;
+	coverBack?: string | null;
+	spine?: string | null;
+	description?: string;
+}
+
+const { title, author, cover, coverBack, spine, description } = Astro.props;
+
+const payload = {
+	title,
+	author: author || undefined,
+	cover: cover || undefined,
+	coverBack: coverBack || undefined,
+	spine: spine || undefined,
+	description: description || undefined,
+};
+---
+
+<div
+	class="book-viewer"
+	data-book-viewer
+	data-book={JSON.stringify(payload)}
+	role="img"
+	aria-label={`3D view of ${title}${author ? ` by ${author}` : ""}. Drag to spin.`}
+>
+	<canvas class="book-viewer__canvas" aria-hidden="true"></canvas>
+	{
+		cover && (
+			<img
+				class="book-viewer__fallback"
+				src={cover}
+				alt=""
+				width="160"
+				height="240"
+				loading="eager"
+				decoding="async"
+			/>
+		)
+	}
+</div>
+
+<script>
+	import { mountBookViewer } from "../scripts/book-viewer-3d";
+
+	if (typeof document !== "undefined") {
+		if (document.readyState === "loading") {
+			document.addEventListener("DOMContentLoaded", () => mountBookViewer(), {
+				once: true,
+			});
+		} else {
+			mountBookViewer();
+		}
+	}
+</script>
+
+<style>
+	.book-viewer {
+		position: relative;
+		flex: 0 0 auto;
+		inline-size: clamp(10rem, 28vw, 14rem);
+		block-size: clamp(14rem, 40vw, 20rem);
+		background: transparent;
+		touch-action: none;
+		cursor: grab;
+		user-select: none;
+	}
+
+	.book-viewer.is-dragging {
+		cursor: grabbing;
+	}
+
+	.book-viewer__canvas {
+		display: block;
+		inline-size: 100%;
+		block-size: 100%;
+		background: transparent;
+		touch-action: none;
+	}
+
+	.book-viewer__fallback {
+		position: absolute;
+		inset: 0;
+		inline-size: 100%;
+		block-size: 100%;
+		object-fit: contain;
+		pointer-events: none;
+		opacity: 0;
+	}
+
+	@media (scripting: none) {
+		.book-viewer__fallback {
+			opacity: 1;
+		}
+
+		.book-viewer__canvas {
+			display: none;
+		}
+	}
+</style>
