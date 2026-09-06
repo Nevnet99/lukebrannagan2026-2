@@ -4,12 +4,16 @@ export const cookieBannerStyles = `
 		position: relative;
 		inset: auto;
 		z-index: 40;
+		box-sizing: border-box;
+		inline-size: 100%;
+		max-inline-size: 100vw;
 		padding: var(--space-md);
 		pointer-events: none;
 	}
 	.cookie-banner__inner {
 		pointer-events: auto;
-		max-inline-size: 40rem;
+		box-sizing: border-box;
+		max-inline-size: min(40rem, 100%);
 		margin-inline: auto;
 		display: flex;
 		flex-wrap: wrap;
@@ -20,6 +24,15 @@ export const cookieBannerStyles = `
 		background: var(--color-bg);
 		border: var(--rule) solid var(--color-border);
 		box-shadow: var(--shadow-overlay);
+	}
+	@media (max-width: 40rem) {
+		.cookie-banner {
+			padding: var(--space-sm);
+		}
+		.cookie-banner__inner {
+			gap: var(--space-sm);
+			padding: var(--space-sm) var(--space-md);
+		}
 	}
 	.cookie-banner__copy {
 		flex: 1 1 14rem;
